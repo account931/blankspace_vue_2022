@@ -1,3 +1,5 @@
+<!-- This template is not used, though available via roure /example -->
+
 <template>
   <div class="hello">
     <h1>{{ msg }}</h1>

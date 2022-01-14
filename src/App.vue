@@ -23,10 +23,10 @@ export default {
   color: #2c3e50;
   margin-top: 20px;
 }
-.vue-logo{width: 6%;}
+.vue-logo{width: 2%;}
 
  /* Mobile */
  @media screen and (max-width: 480px) {
-     .vue-logo{width: 18%;}
+     .vue-logo{width: 11%;}
  }
 </style>

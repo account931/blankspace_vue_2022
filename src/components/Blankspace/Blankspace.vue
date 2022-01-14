@@ -13,9 +13,7 @@
             <div class="wrapper grey">
     		    <div class="container">
 
-                <p> Found Errors {{ this.foundErrorsCount }} </p>
-                <div v-html="this.fixedUserInput"> </div> <!--  v-html to display unescaped HTML (with html tages). Instead of {{ this.fixedUserInput }} -->
-				
+       
 				
                 <!--------------------------------------------------- TextArea FORM  Start------------------------------------------------->
     			<div class="col-sm-12 col-xs-12">	
@@ -39,9 +37,9 @@
 				</br>
 			    <div class="col-md-8" style="margin-top:33px;">  
     				<button id="splitButton"       type="button" class="btn btn-primary btn-embossed btn-lg btn-wide bt-mobile-mine"  v-on:click="proccessTextCore">  Run a check </button>
-                    <button id="clearButton"       type="button" class="btn btn-danger btn-embossed btn-lg btn-wide bt-mobile-mine"   v-on:click="clear">             Reset       </button >
+                    <button id="clearButton"       type="button" class="btn btn-danger btn-embossed btn-lg btn-wide bt-mobile-mine"   v-on:click="clear">             &nbsp;Reset&nbsp;       </button >
 					<button id="examplebutton"     type="button" class="btn btn-primary btn-embossed btn-lg btn-wide bt-mobile-mine"  v-on:click="setExample">        Example     </button>
-                    <button id="instructionButton" type="button" class="btn btn-success btn-embossed btn-lg btn-wide bt-mobile-mine"  v-on:click="instructions">      Instruction </button>
+                    <button id="instructionButton" type="button" class="btn btn-success btn-embossed btn-lg btn-wide bt-mobile-mine"  v-on:click="setInstructions">   {{ this.instructionShowFlag ? "Hide instructions" : "Show instructions" }} </button>
                     <button id="cr_footer" type="button" class="btn btn-success btn-embossed btn-lg btn-wide">CR Footer</button>
     		    </div>
                 <!-------------------------------------------------------START BUTTONS---------------------------------------->
@@ -53,46 +51,13 @@
 
 
                 <!------------------------------------------ INSTRUCTIONS SECTION ------------------------------->
-                </br>
+                
 				<transition name="bounce">  <!--- Animation wrapper, var 1 name="fade" ------>
 				<div v-if="this.instructionShowFlag" class="col-md-8 jumbotron"  id="hiddenInstructions" style="margin-top:2%;"> 
-                    <!-- INSTRUCTIONS -->
-                    <p>
-                        <!--RU-->
-                        </br></br>
-                        <!--<a href='#' target="_blank" style="font-size:18px; "/>View Video Instructions</a>-->
-                        </br>
-
-                        <!-- END RU-->
-
-                        </br>How to remove underscores:
-                        </br>1.Paste the text you'd like to fix.
-                        </br>2.Click "Run a check" button and get corrected text.
-                        </br>3.Click "Copy" button to copy corrected text.
-                        </br>Click <span style="color:red;">"Errors" </span> to see Errors summary or click "show more details" to view errors in original text.
-
-
-
-                        <!--</br>This application performs a check, finds, highlights and fixes all double blankspaces, blankspace + comma, blankspace + full stop.-->
-                        </br></br>Additionally, it fixes consecutive duplicates, double commas, double dots, cases when word is preceeded by comma without no space and more, see full list below.
-                        </br>List:
-                        <!--</br>1.Removes underscore <span style="color:red;"> *</span>-->
-                        </br>1.Double blankspaces.
-                        </br>2.Character followed by comma with space (i.e "word ,")
-                        </br>3.Character followed by dot with space (i.e  "word .")
-                        </br>4.Consecutive duplicates (i.e "to to")
-                        </br>5.Accidentally placed two repetitive commas (i.e  ",,")
-                        </br>6.Accidentally placed two repetitive dots (i.e  "..")
-                        </br>7.Character preceeded by comma without space (i.e ",word") - > <span style="color:red;"> 90% implemented </span>
-                        </br>8.Character preceeded by dot without space (i.e ".word") - > <span style="color:red;"> being implemented</span>
-
-                        <!--</br>10.Pls know /Help center - > <span style="color:red;"> notifications only</span>-->
-                        <!--</br>11.Double paragraphs - > <span style="color:red;"> being implemented</span>-->
-                        <!--</br>9.Missing dot in the end of the sentence - > <span style="color:red;"> being implemented</span>-->
-
-                        <!--</br></br><i>Note: numbered and bulleted list option and other inner GCases formats will not be saved.</i></br></p>-->
-                        <!--END  INSTRUCTIONS-->
-                    </p>
+				
+                    <!--------- Draw the Instructionsfrom sub-component './sub_components/instructions.vue' ------------> 
+					<draw-instrcutions-field/>
+					
                 </div>
 				</transition> 
                 <!----------------------------------------- END INSTRUCTIONS SECTION---------------------->
@@ -105,31 +70,50 @@
 					
 			    <!-------------------------------- RESULTS SECTION (fixed/edited/corrected text) ----------------------------------------->
 			    <transition name="bounce">  <!--- Animation wrapper, var 1 name="fade" ------>
-				    <div v-if="this.resultsShowFlag">
+				    <div v-if="this.resultsShowFlag" class="col-sm-12 col-xs-12">
 								
 				        
+				        <!-- "No correction was performed" vs "Text after correction" -->
+				        <div class="col-sm-12 col-xs-12 red margin-top text-bigger"> 
+						    {{ this.textAfterCorrection }} 
+						</div>              
 				
-				        <div class="red"> {{ this.textAfterCorrection }} </div>              <!-- "No correction was performed" vs "Text after correction" -->
-				
-				        <!-- Fixed text -->
-			            <div v-html="this.fixedUserInput" class="resultFinal col-md-8">       <!--  v-html to display unescaped HTML (with html tages -->
+				        <!-- Fixed/Corrected text -->
+			            <div v-html="this.fixedUserInput" class="col-sm-12 col-xs-12 resultFinal" id="fixedText">       <!--  v-html to display unescaped HTML (with html tages -->
 				           {{ this.fixedUserInput }}
 				        </div> 
+						
+						
+						<!-- Button "Copy text" -->
+						<div class="col-sm-12 col-xs-12"> 
+						    <button class="btn" v-on:click="copyText"> 
+						       {{ copiedFlag ? "Copied successfully" : "Copy corrected text" }}
+						    </button> 
+						</div> 
+				
 				
 				        <!-- Quantity of found errors -->
-				        <div class="errors-div red"> Found Errors {{ this.foundErrorsCount }} </div>
-						<div v-on:click="showDetailedErrors"    class="cursor-x"> show detailed error list >> </div> <!-- Button to show/hide detailed error list -->
-						<div v-on:click="showHighLightedErrors" class="cursor-x"> show highlighted errors >> </div>  <!-- Button to show/hide highlighted errors -->
+				        <div class="col-sm-12 col-xs-12 red errors-div red text-bigger"> Found Errors: <span class="badge red-bg"> {{ this.foundErrorsCount }} </span> </div>
+						
+						<!-- Button/Div to show/hide detailed error list -->
+						<div v-on:click="showDetailedErrors" class="cursor-x"> 
+						    {{ showDetailedErrorsFlag ? "hide detailed error list >>" : "show detailed error list >>" }}  
+						</div> 
+						
+						<!-- Button/Div to show/hide highlighted errors -->
+						<div v-on:click="showHighLightedErrors" class="cursor-x"> <!-- Button to show/hide highlighted errors -->
+    						{{ showHighLightErrorsFlag ? "hide highlighted errors " : "show highlighted errors " }} >> </i>   
+						</div>  <!-- Button to show/hide highlighted errors -->
 						
 						 
 						<!-- Detailed ist of errors -->
 						<transition name="bounce">
-						<div v-if="this.showDetailedErrorsFlag" v-html="this.detailedListOfErrors" class="hightLighted"> </div>    <!--  v-html to display unescaped HTML (with html tages -->
+						<div v-if="this.showDetailedErrorsFlag" v-html="this.detailedListOfErrors" class="col-sm-12 col-xs-12 hightLighted"> </div>    <!--  v-html to display unescaped HTML (with html tages -->
 						</transition> 
 						 
 				        <!-- Text with red highlighted text -->
 						<transition name="bounce"> 
-				        <div v-if="this.showHighLightErrorsFlag" v-html="this.textHighlightedErrors" class="hightLighted"></div>   <!--  v-html to display unescaped HTML (with html tages -->
+				        <div v-if="this.showHighLightErrorsFlag" v-html="this.textHighlightedErrors" class="col-sm-12 col-xs-12 hightLighted"></div>   <!--  v-html to display unescaped HTML (with html tages -->
 				        </transition>
 				</div>
 				</transition>  
@@ -140,17 +124,18 @@
     		                        
 
 
-                <!--------------------------------- SECTION "Show errors" NOT USED???------------------------------------------------>
-                </br></br>
+                <!--------------------------------- SECTION "Show errors" NOT USED ------------------------------------------------>
+                <!--
+				</br></br>
                 <div class="col-md-8">
                     <p id="highLight_errors_button" style="display:none;cursor:pointer;padding:10px;margin-top:17px;text-decoration:underline;color:red;">show more details >></p>
                     
-					<div id="highLight_errors" style="display:none;padding:19px;border:1px dotted red;box-shadow: 5px 5px 25px red ;"><!-- Highlights with red double spaces-->
-                    </div><!--end id="highLight_errors -->
+					<div id="highLight_errors" style="display:none;padding:19px;border:1px dotted red;box-shadow: 5px 5px 25px red ;">
+                    </div>
 					
                     </br></br>
-                </div><!--div class="col-md-8">-->
-                <!-------------------------------- END SECTION "Show errors" --------------------------------------------->
+                </div> -->
+                <!-------------------------------- END SECTION "Show errors" NOT USED --------------------------------------------->
 
 
                                         
@@ -181,8 +166,17 @@
 //import function from other external file
 import {computedAnswerFile} from './sub_functions/scroll_function.js';  //name in {} i.e 'computedAnswerFile' must be cooherent to name in "export const computedAnswerFile" in '/sub_functions/computedAnswer.js'
 
+//using other sub-component, in this case a component to draw the game Field
+import instructionField from './sub_components/instructions.vue';  //import file from same level folder
+
 export default {
     name: 'Blankspace',
+	
+	//using other sub-component, e.g sub-component to draw game field
+    components: {
+      'draw-instrcutions-field': instructionField 
+    },
+	
     data () {
         return {
             msg                    : 'Welcome to Blankspace App',
@@ -192,6 +186,8 @@ export default {
 			resultsShowFlag        : false,  //CSS to show/hide core results
 			showDetailedErrorsFlag : false,  //CSS to show/hide detailed list with errors
 			showHighLightErrorsFlag: false,  //CSS to show/hide highlited red text
+			copiedFlag             : false,  //CSS to change text "Copy" / "Copied"
+			
 			foundErrorsCount       : null,   //amount of errors found (int)
 			textAfterCorrection    :'',      //"No correction was performed" vs "Text after correction"
 			detailedListOfErrors   :'',      //detailed list of errors found
@@ -254,21 +250,25 @@ export default {
 			//let wordsDuplicate = /\b(\w+)\s+\1\b/g;  /*word duplicate*/
 			//End regExp to use ----
 			
-			this.resultsShowFlag = false;
+			this.resultsShowFlag         = false;
+			this.showDetailedErrorsFlag  = false; //always hide detailed error list 
+			this.showHighLightErrorsFlag = false; //always hide HighLighted Errors text
+			this.copiedFlag              = false;
 			
 			
 			//if no user printed no input
 			if(this.userInput == ""){
+			
 			    //VUE Sweet alert 2, ordinary sweetAlert does not work in Vue,  have to use vue-sweetalert2
                 this.$swal.fire({  //or this.$swal  or Vue.swal
                     html:true, 
-                    title: 'Empty input',
+                    title: 'Stopped! Empty input!',
                     text: "You are able to revert this!",
                     icon: 'error',
                     //showCancelButton: true,
                     confirmButtonColor: '#3085d6',
                     cancelButtonColor: '#d33',
-                    confirmButtonText: 'OK, I hace got it!',
+                    confirmButtonText: 'OK, I"ll try harder!',
                     cancelButtonText: "No, cancel it!",
 					keydownListenerCapture: false, //ignore esc button to close the pop
 					allowOutsideClick: false       //don't allow outside click to close the pop-up
@@ -386,12 +386,12 @@ export default {
 			(AllErrorsCount == 0) ? this.textAfterCorrection = "No correction was performed" : this.textAfterCorrection = "Text after correction";
 			
 			//specify detailedListOfErrors
-			this.detailedListOfErrors = "<p class='margin-x'> Double Spaces => "                     + numb         + "</p>" + 
-				                        "<p class='margin-x'> Char followed by comma with space => " + numbComma    + "</p>" + 
-				                        "<p class='margin-x'> Dots followed => "                     + numbDot      + "</p>" +
-				                        "<p class='margin-x'> Consecutive duplicates => "            + doubleWords  + "</p>" +
-				                        "<p class='margin-x'> Double commas => "                     + doubleCommas + "</p>" +
-				                        "<p class='margin-x'> Double dots => "                       + doubleDots   + "</p>";
+			this.detailedListOfErrors = "<p class='margin-zz' style='margin-top: -0.7em;text-align:left;'> Double Spaces => "                     + numb         + "</p>" + 
+				                        "<p class='margin-zz' style='margin-top: -0.7em;text-align:left;'> Char followed by comma with space => " + numbComma    + "</p>" + 
+				                        "<p class='margin-zz' style='margin-top: -0.7em;text-align:left;'> Dots followed => "                     + numbDot      + "</p>" +
+				                        "<p class='margin-zz' style='margin-top: -0.7em;text-align:left;'> Consecutive duplicates => "            + doubleWords  + "</p>" +
+				                        "<p class='margin-zz' style='margin-top: -0.7em;text-align:left;'> Double commas => "                     + doubleCommas + "</p>" +
+				                        "<p class='margin-zz' style='margin-top: -0.7em;text-align:left;'> Double dots => "                       + doubleDots   + "</p>";
 				                        /* ';</br> Underscore => ' + Underscore_ErrCount  +  */   //deactivated for zzz production
 				                        /* '; </br>Comma+char with NO space => ' +commaCharNoSpace+*/  
 			
@@ -403,7 +403,10 @@ export default {
 		
 		//highlightErrors 
 		highlightErrors(){
-		    let intro = "<p> See errors </p>";
+		    //let intro = "<p> See errors </p>"; 
+			let intro;
+			(this.foundErrorsCount == 0) ? intro = "<p> No errors found </p>" :  intro = "<p> See errors </p>";
+			
 			let finalText = '';
 		    let  arrayX2 = this.userInput.split('\n');
 			for(let j = 0; j < arrayX2.length; j++) {  
@@ -447,8 +450,12 @@ export default {
         },
         
 		//function to show/hide instructions
-        instructions(){
+        setInstructions(){
 		    this.instructionShowFlag = !this.instructionShowFlag; //switch state to change class.
+			const myTimeout = setTimeout(function(){ 
+				computedAnswerFile.scrollResults("#hiddenInstructions"); //Call the function from external file (/sub_functions/computedAnswer.js)
+		    }, 700);
+
         },
 		
 		//function set example
@@ -460,15 +467,44 @@ export default {
 		showDetailedErrors(){
 		    this.showDetailedErrorsFlag  = !this.showDetailedErrorsFlag; //switch state to change class.
 			this.showHighLightErrorsFlag = false; //always hide HighLighted Errors text
+			
+			//Call the function from external file (/sub_functions/computedAnswer.js). Problem with DOM visibility
+			const myTimeout = setTimeout(function(){ computedAnswerFile.scrollResults(".hightLighted"); }, 700);
 		},
 		
 		  
 		//function to switch CSS to show/hide HighLighted Errors text
 		showHighLightedErrors(){
 		    this.showHighLightErrorsFlag = !this.showHighLightErrorsFlag; //switch state to change class.
-			this.showDetailedErrorsFlag  = false; //always hide detailed error list
-		},
+			this.showDetailedErrorsFlag  = false; //always hide detailed error list 
+			
+			//Call the function from external file (/sub_functions/computedAnswer.js). Problem with DOM visibility
+			const myTimeout = setTimeout(function(){ computedAnswerFile.scrollResults(".hightLighted"); }, 700);
 
+        },
+		
+		// function to copy text
+		copyText(){
+		   //$('#flashMessage').html(' Copied!!!!!!!').fadeOut(4500);
+		   	this.copiedFlag  = !this.copiedFlag; //switch state to change class.
+
+
+            // creating new textarea element and giveing it id 't'
+            var t = document.createElement('textarea');
+            t.id = 't';
+            // Optional step to make less noise in the page, if any!
+            t.style.height = 0;
+            // You have to append it to your page somewhere, I chose <body>
+            document.body.appendChild(t);
+            // Copy whatever is in your div to our new textarea
+            t.value = document.getElementById('fixedText').innerText;
+            // Now copy whatever inside the textarea to clipboard;
+            var selector = document.querySelector('#t');
+            selector.select();
+            document.execCommand('copy');
+            // Remove the textarea;
+            document.body.removeChild(t);
+		}
     }		
 }
 </script>
@@ -485,37 +521,43 @@ ul {
   list-style-type: none;
   padding: 0;
 }
-li {display: inline-block;margin: 0 10px;}
-a {color: #42b983;}
-.resultFinal{border: 1px solid black; margin-top: 1em; padding: 1em 0.2em}
+li           {display: inline-block;margin: 0 10px;}
+a            {color: #42b983;}
+.resultFinal {border: 1px solid black; margin-top: 1em; padding: 1em 0.2em}
 .hightLighted{border: 1px solid black; margin-top: 1em; padding: 1em 0.2em}
-.red{color: red;}
-.margin-x   {margin-top: -2em; }
-.errors-div {margin-top:2em;}
-.cursor-x   {cursor:pointer;}
+.red         {color: red;}
+.margin-zz    {margin: 0 !important; color:red !important; text-align:left; }
 
-/* ---  Vue animation */
+.errors-div  {margin-top:2em;}
+.margin-top  {margin-top:2em;}
+.cursor-x    {}
+.cursor-x:hover   {text-decoration: underlined; color:red; cursor:pointer;}
+.text-bigger {font-size: 1.2em;}
+.red-bg      {background-color:red;}
 
-/*--- Animation Var 1 */
-.fade-enter-active, .fade-leave-active {
-  transition: opacity 6.5s;
-}
-.fade-enter, .fade-leave-to /* .fade-leave-active до версии 2.1.8 */ {
-  opacity: 0;
-}
+/* ----------------  Vue animation ----- */
 
-/*--- Animation Var 2 */	
-.bounce-enter-active {
-  animation: bounce-in 0.5s; /* fade in time */
-}
-.bounce-leave-active {
-  animation: bounce-in 1.5s reverse;
-}
-@keyframes bounce-in {
-  0%   { transform: scale(0); }
-  50% { -webkit-transform : rotate(480deg) scale(0.3); /* Chrome, Opera 15+, Safari 3.1+ */  transform: rotate(490deg) scale(0.2); /* Firefox 16+, IE 10+, Opera */ }     /* transform: scale(1.5); */
-  100% { transform: scale(1); }
-}
-/* --- End  Vue animation */
+    /*--- Animation Var 1 */
+    .fade-enter-active, .fade-leave-active {
+        transition: opacity 6.5s;
+    }
+    .fade-enter, .fade-leave-to /* .fade-leave-active до версии 2.1.8 */ {
+        opacity: 0;
+    }
+
+    /*--- Animation Var 2 */	
+    .bounce-enter-active {
+       animation: bounce-in 0.5s; /* fade in time */
+    }
+    .bounce-leave-active {
+      animation: bounce-in 1.5s reverse;https://www.googleadservices.com/pagead/aclk?sa=L&ai=DChcSEwif25C4zrH1AhVNAYsKHcBLAaQYABAAGgJlZg&ae=2&ohost=www.google.com&cid=CAASE-Roun3H3fmZYoJdK6F-vDG0C-Y&sig=AOD64_0_VlvADAFPvEZqVKY_c5nmk2iXwA&q&adurl&ved=2ahUKEwizyoi4zrH1AhWH7rsIHZv4CXwQ0Qx6BAgDEAE
+    }
+    @keyframes bounce-in {
+       0%   { transform: scale(0); }
+       50% { -webkit-transform : rotate(480deg) scale(0.3); /* Chrome, Opera 15+, Safari 3.1+ */  transform: rotate(490deg) scale(0.2); /* Firefox 16+, IE 10+, Opera */ }     /* transform: scale(1.5); */
+       100% { transform: scale(1); }
+    }
+	
+/* -------------- End  Vue animation ----------*/
 
 </style>

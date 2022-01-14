@@ -9,6 +9,7 @@
     </br></br>Additionally, it fixes consecutive duplicates, double commas, double dots, cases when word is preceeded by comma without no space and more, see full list below.
  </p>
 
+- <p> Availabe at http://localhost:8080/#/  on CLI -> npm run dev </p>
 
 ## Brief overview of the application
 
@@ -16,7 +17,6 @@
 
 
 
-http://localhost:8080/#/
 
 ## Build Setup
 
