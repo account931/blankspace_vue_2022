@@ -1,20 +1,22 @@
-# Blankspace_vue_2022
+# Blankspace_remover_vue
 
-> Blankspace rework on Vue Framework
+> Text editing tool on Vue Framework
 
 ## Blankspace remover tool on Vue Framework.
 
-- <p> The application tool to check text for commom punctuantion errors; performs a check, finds, highlights and fixes all double blankspaces, blankspace + comma, blankspace + full stop. </p>
+- <p> The application checks text for commom punctuantion errors; it performs a check, finds, highlights and fixes all double blankspaces, blankspace + comma, blankspace + full stop. </p>
  
 - <p> Additionally, it fixes consecutive duplicates, double commas, double dots, cases when word is preceeded by comma without no space and more, see full list below.</p>
 
-- <p> Availabe at http://localhost:8080/#/  on CLI -> npm run dev </p>
+- <p> Ready build script can be found at /dist </p>
+
+- <p> Hot reload is availabe at http://localhost:8080/#/  on CLI -> npm run dev </p>
 
 ## Brief overview of the application
 
 ![Screenshot](screenshots/1.png)
 
-## On click tha app corrects the text fixing found errors
+## On click the app corrects the text fixing found errors
 
 ![Screenshot](screenshots/2.png)
 

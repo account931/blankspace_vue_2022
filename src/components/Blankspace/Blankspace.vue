@@ -512,7 +512,7 @@ a            {color: #42b983;}
        animation: bounce-in 0.5s; /* fade in time */
     }
     .bounce-leave-active {
-      animation: bounce-in 1.5s reverse;https://www.googleadservices.com/pagead/aclk?sa=L&ai=DChcSEwif25C4zrH1AhVNAYsKHcBLAaQYABAAGgJlZg&ae=2&ohost=www.google.com&cid=CAASE-Roun3H3fmZYoJdK6F-vDG0C-Y&sig=AOD64_0_VlvADAFPvEZqVKY_c5nmk2iXwA&q&adurl&ved=2ahUKEwizyoi4zrH1AhWH7rsIHZv4CXwQ0Qx6BAgDEAE
+      animation: bounce-in 1.5s reverse;
     }
     @keyframes bounce-in {
        0%   { transform: scale(0); }
