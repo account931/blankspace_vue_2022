@@ -4,10 +4,9 @@
 
 ## Blankspace remover tool on Vue Framework.
 
-- <p>
-    The application tool to check text for commom punctuantion errors; performs a check, finds, highlights and fixes all double blankspaces, blankspace + comma, blankspace + full stop.
-    </br></br>Additionally, it fixes consecutive duplicates, double commas, double dots, cases when word is preceeded by comma without no space and more, see full list below.
- </p>
+- <p> The application tool to check text for commom punctuantion errors; performs a check, finds, highlights and fixes all double blankspaces, blankspace + comma, blankspace + full stop. </p>
+ 
+- <p> Additionally, it fixes consecutive duplicates, double commas, double dots, cases when word is preceeded by comma without no space and more, see full list below.</p>
 
 - <p> Availabe at http://localhost:8080/#/  on CLI -> npm run dev </p>
 
@@ -15,7 +14,19 @@
 
 ![Screenshot](screenshots/1.png)
 
+## On click tha app corrects the text fixing found errors
 
+![Screenshot](screenshots/2.png)
+
+![Screenshot](screenshots/3.png)
+
+## Detailed list of found errors
+
+![Screenshot](screenshots/4.png)
+
+## Input check
+
+![Screenshot](screenshots/5.png)
 
 
 ## Build Setup

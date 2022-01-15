@@ -1,6 +1,8 @@
 <!-- This all below code used to be inside Blankspace.vue as sub-component & 100% working. Outlined here (to subcomponent) to make code more clear -->
 <template>
-    
+  <transition name="bounce">  <!--- Animation wrapper, var 1 name="fade" ------>  
+    <div v-if="this.cssVisibilityFlag" class="col-md-8 jumbotron"  id="hiddenInstructions" style="margin-top:2%;"> 
+	
 	    <!-- INSTRUCTIONS -->
         <p>
                       
@@ -34,7 +36,9 @@
             <!--</br></br><i>Note: numbered and bulleted list option and other inner GCases formats will not be saved.</i></br></p>-->
             <!--END  INSTRUCTIONS-->
         </p>
-	
+		
+	 </div>
+  </transition> 
 </template>
 
 
@@ -43,7 +47,7 @@
 <script>
 export default {
     name: 'Instructions',
-    props: ['horizontalX', 'verticalX', 'gameHitsX'], //props sent from parent
+    props: ['cssVisibilityFlag', ], //props sent from parent
     data () { return { 
         //horizontalX: this.horizontalX,
     }},

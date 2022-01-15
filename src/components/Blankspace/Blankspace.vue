@@ -7,154 +7,105 @@
         </div>
 
 
-
-
         <div class="item contact padding-top-0 padding-bottom-0" id="contact1">
             <div class="wrapper grey">
     		    <div class="container">
 
-       
 				
-                <!--------------------------------------------------- TextArea FORM  Start------------------------------------------------->
-    			<div class="col-sm-12 col-xs-12">	
-    	            <form role="form">  	
-    			  		    				  	
-    			        <div class="form-group">
-    				        <textarea v-model="userInput" class="form-control" rows="6" placeholder="Your text here.."  required></textarea>
-    		            </div>
-    				  
-                    </form>
-    			</div>	
-                <!--------------------------------------------------- TextArea FORM END------------------------------------------------->
+                    <!--------------------------------------------------- TextArea FORM  Start------------------------------------------------->
+    			    <div class="col-sm-12 col-xs-12">	
+    	                <form role="form">  	
+    			            <div class="form-group">
+    				            <textarea v-model="userInput" class="form-control" rows="6" placeholder="Your text here.."  required></textarea>
+    		                </div>
+                        </form>
+    			    </div>	
+                    <!--------------------------------------------------- TextArea FORM END------------------------------------------------->
     			
     					
-    				
-             
 
 
 
-                <!-------------------------------------------------------START BUTTONS---------------------------------------->
-				</br>
-			    <div class="col-md-8" style="margin-top:33px;">  
-    				<button id="splitButton"       type="button" class="btn btn-primary btn-embossed btn-lg btn-wide bt-mobile-mine"  v-on:click="proccessTextCore">  Run a check </button>
-                    <button id="clearButton"       type="button" class="btn btn-danger btn-embossed btn-lg btn-wide bt-mobile-mine"   v-on:click="clear">             &nbsp;Reset&nbsp;       </button >
-					<button id="examplebutton"     type="button" class="btn btn-primary btn-embossed btn-lg btn-wide bt-mobile-mine"  v-on:click="setExample">        Example     </button>
-                    <button id="instructionButton" type="button" class="btn btn-success btn-embossed btn-lg btn-wide bt-mobile-mine"  v-on:click="setInstructions">   {{ this.instructionShowFlag ? "Hide instructions" : "Show instructions" }} </button>
-                    <button id="cr_footer" type="button" class="btn btn-success btn-embossed btn-lg btn-wide">CR Footer</button>
-    		    </div>
-                <!-------------------------------------------------------START BUTTONS---------------------------------------->
-
+                    <!-------------------------------------------------------START BUTTONS---------------------------------------->
+			        <div class="col-md-8 buttons-set">  
+    				    <button id="splitButton"       type="button" class="btn btn-primary btn-embossed btn-lg btn-wide bt-mobile-mine"  v-on:click="proccessTextCore">  Run a check </button>
+                        <button id="clearButton"       type="button" class="btn btn-danger btn-embossed btn-lg btn-wide bt-mobile-mine"   v-on:click="clear">             &nbsp;Reset&nbsp;       </button >
+					    <button id="examplebutton"     type="button" class="btn btn-primary btn-embossed btn-lg btn-wide bt-mobile-mine"  v-on:click="setExample">        Example     </button>
+                        <button id="instructionButton" type="button" class="btn btn-success btn-embossed btn-lg btn-wide bt-mobile-mine"  v-on:click="setInstructions">   {{ this.instructionShowFlag ? "Hide instructions" : "Show instructions" }} </button>
+                        <button id="cr_footer" type="button" class="btn btn-success btn-embossed btn-lg btn-wide">CR Footer(N/A)</button>
+    		        </div>
+                    <!-------------------------------------------------------START BUTTONS---------------------------------------->
 
 
 
 
-
-
-                <!------------------------------------------ INSTRUCTIONS SECTION ------------------------------->
-                
-				<transition name="bounce">  <!--- Animation wrapper, var 1 name="fade" ------>
-				<div v-if="this.instructionShowFlag" class="col-md-8 jumbotron"  id="hiddenInstructions" style="margin-top:2%;"> 
-				
-                    <!--------- Draw the Instructionsfrom sub-component './sub_components/instructions.vue' ------------> 
-					<draw-instrcutions-field/>
-					
-                </div>
-				</transition> 
-                <!----------------------------------------- END INSTRUCTIONS SECTION---------------------->
+                    <!------------------------------------------ INSTRUCTIONS SECTION ------------------------------->
+                    <!--------- Draw the Instructions from sub-component './sub_components/instructions.vue' ------------> 
+			        <draw-instrcutions-field :cssVisibilityFlag ="this.instructionShowFlag"> </draw-instrcutions-field>   <!-- Passing props -->
+                    <!----------------------------------------- END INSTRUCTIONS SECTION---------------------->
 
 
 
-
-                
 
 					
-			    <!-------------------------------- RESULTS SECTION (fixed/edited/corrected text) ----------------------------------------->
-			    <transition name="bounce">  <!--- Animation wrapper, var 1 name="fade" ------>
-				    <div v-if="this.resultsShowFlag" class="col-sm-12 col-xs-12">
+			        <!-------------------------------- RESULTS SECTION (fixed/edited/corrected text) ----------------------------------------->
+			        <transition name="bounce">  <!--- Animation wrapper, var 1 name="fade" ------>
+				        <div v-if="this.resultsShowFlag" class="col-sm-12 col-xs-12">
 								
-				        
-				        <!-- "No correction was performed" vs "Text after correction" -->
-				        <div class="col-sm-12 col-xs-12 red margin-top text-bigger"> 
-						    {{ this.textAfterCorrection }} 
-						</div>              
+				            <!-- "No correction was performed" vs "Text after correction" -->
+				            <div class="col-sm-12 col-xs-12 red margin-top text-bigger"> 
+						        {{ this.textAfterCorrection }} 
+						    </div>              
 				
-				        <!-- Fixed/Corrected text -->
-			            <div v-html="this.fixedUserInput" class="col-sm-12 col-xs-12 resultFinal" id="fixedText">       <!--  v-html to display unescaped HTML (with html tages -->
-				           {{ this.fixedUserInput }}
-				        </div> 
+				            <!-- Fixed/Corrected text -->
+			                <div v-html="this.fixedUserInput" class="col-sm-12 col-xs-12 resultFinal" id="fixedText">       <!--  v-html to display unescaped HTML (with html tages -->
+				               {{ this.fixedUserInput }}
+				            </div> 
 						
 						
-						<!-- Button "Copy text" -->
-						<div class="col-sm-12 col-xs-12"> 
-						    <button class="btn" v-on:click="copyText"> 
-						       {{ copiedFlag ? "Copied successfully" : "Copy corrected text" }}
-						    </button> 
-						</div> 
+						    <!-- Button "Copy text" -->
+						    <div class="col-sm-12 col-xs-12"> 
+						        <button class="btn" v-on:click="copyText"> 
+						           {{ copiedFlag ? "Copied successfully" : "Copy corrected text" }}
+						        </button> 
+						    </div> 
 				
 				
-				        <!-- Quantity of found errors -->
-				        <div class="col-sm-12 col-xs-12 red errors-div red text-bigger"> Found Errors: <span class="badge red-bg"> {{ this.foundErrorsCount }} </span> </div>
+				            <!-- Quantity of found errors -->
+				            <div class="col-sm-12 col-xs-12 red errors-div red text-bigger"> Found Errors: <span class="badge red-bg"> {{ this.foundErrorsCount }} </span> </div>
 						
-						<!-- Button/Div to show/hide detailed error list -->
-						<div v-on:click="showDetailedErrors" class="cursor-x"> 
-						    {{ showDetailedErrorsFlag ? "hide detailed error list >>" : "show detailed error list >>" }}  
-						</div> 
+						    <!-- Button/Div to show/hide detailed error list -->
+						    <div v-on:click="showDetailedErrors" class="cursor-x"> 
+						        {{ showDetailedErrorsFlag ? "hide detailed error list >>" : "show detailed error list >>" }}  
+						    </div> 
 						
-						<!-- Button/Div to show/hide highlighted errors -->
-						<div v-on:click="showHighLightedErrors" class="cursor-x"> <!-- Button to show/hide highlighted errors -->
-    						{{ showHighLightErrorsFlag ? "hide highlighted errors " : "show highlighted errors " }} >> </i>   
-						</div>  <!-- Button to show/hide highlighted errors -->
+						    <!-- Button/Div to show/hide highlighted errors -->
+						    <div v-on:click="showHighLightedErrors" class="cursor-x"> <!-- Button to show/hide highlighted errors -->
+    						    {{ showHighLightErrorsFlag ? "hide highlighted errors " : "show highlighted errors " }} >> </i>   
+						    </div>  <!-- Button to show/hide highlighted errors -->
 						
 						 
-						<!-- Detailed ist of errors -->
-						<transition name="bounce">
-						<div v-if="this.showDetailedErrorsFlag" v-html="this.detailedListOfErrors" class="col-sm-12 col-xs-12 hightLighted"> </div>    <!--  v-html to display unescaped HTML (with html tages -->
-						</transition> 
+						    <!-- Detailed ist of errors -->
+						    <transition name="bounce">
+						        <div v-if="this.showDetailedErrorsFlag" v-html="this.detailedListOfErrors" class="col-sm-12 col-xs-12 hightLighted"> </div>    <!--  v-html to display unescaped HTML (with html tages -->
+						    </transition> 
 						 
-				        <!-- Text with red highlighted text -->
-						<transition name="bounce"> 
-				        <div v-if="this.showHighLightErrorsFlag" v-html="this.textHighlightedErrors" class="col-sm-12 col-xs-12 hightLighted"></div>   <!--  v-html to display unescaped HTML (with html tages -->
-				        </transition>
-				</div>
-				</transition>  
-				<!--------------------------------- END RESULTS SECTION (fixed text)-------------------------------------->
-					
-					
-					
-    		                        
-
-
-                <!--------------------------------- SECTION "Show errors" NOT USED ------------------------------------------------>
-                <!--
-				</br></br>
-                <div class="col-md-8">
-                    <p id="highLight_errors_button" style="display:none;cursor:pointer;padding:10px;margin-top:17px;text-decoration:underline;color:red;">show more details >></p>
-                    
-					<div id="highLight_errors" style="display:none;padding:19px;border:1px dotted red;box-shadow: 5px 5px 25px red ;">
-                    </div>
-					
-                    </br></br>
-                </div> -->
-                <!-------------------------------- END SECTION "Show errors" NOT USED --------------------------------------------->
-
-
-                                        
+				            <!-- Text with red highlighted text -->
+						    <transition name="bounce"> 
+				                <div v-if="this.showHighLightErrorsFlag" v-html="this.textHighlightedErrors" class="col-sm-12 col-xs-12 hightLighted"></div>   <!--  v-html to display unescaped HTML (with html tages -->
+				            </transition>
+				        </div>
+				    </transition>  
+				    <!--------------------------------- END RESULTS SECTION (fixed text)-------------------------------------->
+	                          
 
     		    </div><!-- /.container -->
     	    </div><!-- /.wrapper -->
 
-            <div style="height:77px;">
-		    </div>
-				
-				
-		    <!----- Footer ---->
-		    <div class="footer">
-			    Contact: <strong>dimmm931@gmail.com</strong></br>
-				{{ new Date().getFullYear() }}
-			    <!-- <?php  echo date("Y"); ?>-->
-		    </div>
-		    <!-- END Footer ---->
-				
+ 
+		    <!----- Footer from sub-component './sub_components/footer.vue' ---->
+		    <draw-footer-field/>
+		    <!-- END Footer from sub-component './sub_components/footer.vue' ---->
 				
     	
         </div> <!-- /.item -->
@@ -168,13 +119,15 @@ import {computedAnswerFile} from './sub_functions/scroll_function.js';  //name i
 
 //using other sub-component, in this case a component to draw the game Field
 import instructionField from './sub_components/instructions.vue';  //import file from same level folder
+import footerField from './sub_components/footer.vue';             //import file from same level folder
 
 export default {
     name: 'Blankspace',
 	
 	//using other sub-component, e.g sub-component to draw game field
     components: {
-      'draw-instrcutions-field': instructionField 
+      'draw-instrcutions-field': instructionField,
+	  'draw-footer-field'      : footerField 
     },
 	
     data () {
@@ -401,7 +354,14 @@ export default {
 		
 		
 		
-		//highlightErrors 
+		
+		/*
+        |--------------------------------------------------------------------------
+        | Function to highlight Errors in text
+        |--------------------------------------------------------------------------
+        |
+        |
+        */
 		highlightErrors(){
 		    //let intro = "<p> See errors </p>"; 
 			let intro;
@@ -534,6 +494,8 @@ a            {color: #42b983;}
 .cursor-x:hover   {text-decoration: underlined; color:red; cursor:pointer;}
 .text-bigger {font-size: 1.2em;}
 .red-bg      {background-color:red;}
+.footer      {margin-top: 26em;}
+.buttons-set {margin-top:4em;}
 
 /* ----------------  Vue animation ----- */
 
