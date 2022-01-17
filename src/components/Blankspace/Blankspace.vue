@@ -18,11 +18,49 @@
     			            <div class="form-group">
     				            <textarea v-model="userInput" class="form-control" rows="6" placeholder="Your text here.."  required></textarea>
     		                </div>
+								
                         </form>
     			    </div>	
                     <!--------------------------------------------------- TextArea FORM END------------------------------------------------->
     			
-    					
+				
+				
+				
+				
+				    
+				
+				
+    				<!--------------------------- Checkboxes to add additional functions to text fixing process ------------------------------------>
+					<div class="row check-options">
+					
+                    <!-- Checkbox to include checking underscores, i.e for misplaced ad pins -->
+					<div class="col-sm-3 col-xs-12">
+					    <input type="checkbox" id="checkbox" name="checkbox" class="checkbox-x" v-model="ifUnderscoreOnFlag" v-on:click="toogleMisplacedAdPinsOn">
+                        <label id="following" for="checkbox"> {{ this.ifUnderscoreOnFlag ? "check underscores on" : "check underscores" }} </label>
+					</div>
+					
+					<!-- Checkbox to include checking some waze specifics, i.e "Please know that, Help Center". No correction, just notifications-->
+					<div class="col-sm-3 col-xs-12">
+					    <input type="checkbox" id="support" class="checkbox-x" v-model="ifWazeSpecificsOnFlag" v-on:click="toggleWazeSpecifics">
+                        <label id="following" for="support"> {{ this.ifWazeSpecificsOnFlag ? "waze specifics on (notify only)" : "waze specifics" }} </label>
+					</div>
+					
+					<!-- Checkbox to include/exclude Support footer -->
+					<div class="col-sm-2 col-xs-12">
+					    <input type="checkbox" id="support" class="checkbox-x" v-model="ifSupportOnFlag" v-on:click="toogleSupport">
+                        <label id="following" for="support"> {{ this.ifSupportOnFlag ? "support footer on" : "support footer" }} </label>
+					</div>
+					
+				    </div>
+					
+                    <!--------------------------- End Checkboxes to add additional functions to text fixing process ------------------------------------>
+
+
+
+
+
+
+
 
 
 
@@ -32,7 +70,7 @@
                         <button id="clearButton"       type="button" class="btn btn-danger btn-embossed btn-lg btn-wide bt-mobile-mine"   v-on:click="clear">             &nbsp;Reset&nbsp;       </button >
 					    <button id="examplebutton"     type="button" class="btn btn-primary btn-embossed btn-lg btn-wide bt-mobile-mine"  v-on:click="setExample">        Example     </button>
                         <button id="instructionButton" type="button" class="btn btn-success btn-embossed btn-lg btn-wide bt-mobile-mine"  v-on:click="setInstructions">   {{ this.instructionShowFlag ? "Hide instructions" : "Show instructions" }} </button>
-                        <button id="cr_footer" type="button" class="btn btn-success btn-embossed btn-lg btn-wide">CR Footer(N/A)</button>
+                        <!--<button id="cr_footer" type="button" class="btn btn-success btn-embossed btn-lg btn-wide">CR Footer(N/A)</button>-->
     		        </div>
                     <!-------------------------------------------------------START BUTTONS---------------------------------------->
 
@@ -140,16 +178,17 @@ export default {
 			showDetailedErrorsFlag : false,  //CSS to show/hide detailed list with errors
 			showHighLightErrorsFlag: false,  //CSS to show/hide highlited red text
 			copiedFlag             : false,  //CSS to change text "Copy" / "Copied"
+			ifUnderscoreOnFlag     : false,  //checkbox flag to decide if text editing will include checking/removing underscore (_, e.g for misplaced ad pins)
+			ifSupportOnFlag        : false,  //checkbox flag to decide if edited/fixed text will contain support footer
+			ifWazeSpecificsOnFlag  : false,  //checkbox flag to decide if edited/fixed text will contain checking for some waze specifics, i.e "Please know that, Help Center"
 			
 			foundErrorsCount       : null,   //amount of errors found (int)
 			textAfterCorrection    :'',      //"No correction was performed" vs "Text after correction"
 			detailedListOfErrors   :'',      //detailed list of errors found
 			textHighlightedErrors  :'', 
 			
-			
 			//regExp
 			//doubleSpaces: new RegExp(/\s\s+/g),   /*double spaces*
-	  
         }
     },
   
@@ -243,14 +282,27 @@ export default {
 			       .replace(/ \,+/g, ',' )  //.replace(spaceComma, ',' )  /*space+comma*/
 			       .replace( / \.+/g, '.' )                               /*space+dot*/
 			       .replace( /\b(\w+)\s+\1\b/g, '\$1' )                   /*word duplicate*/
-			       .replace( /\,\,+/g, ',' ) /*double commas ,,*/
-			       .replace( /\.\.+/g, '.' ) /*comma followed by char no space!!!!PROBLEM HERE*/  /*.replace(/\,(.)/g, ', \$1' )*/    /*double dots ..*/    
-			     /* .replace( RegExp_underscore , ' ' )  */    + /*underscore _*/
-			    '</br>'; 
- 
-            //add up fixed text
-            this.fixedUserInput = this.fixedUserInput  + tempTextLine ;
+			       .replace( /\,\,+/g, ',' )                              /*double commas ,,*/
+			       .replace( /\.\.+/g, '.' )                              /*double dots ..*/  
+				   /* .replace(/\,(.)/g, ', \$1' )  */                         /*comma followed by char no space!!!!PROBLEM HERE*/ 
+			     + '</br>'; 
+				 
+				//case if checkbox "check underscores" is ON, then include removing/replacing undescores as well (used for misplaces ad pins) 
+                if(this.ifUnderscoreOnFlag){
+				    tempTextLine = tempTextLine.replace(/_/gi, ' ' );   /* underscore _ */ 
+			    }                          
+				 
+                //add up fixed/edited/corrected text
+                this.fixedUserInput = this.fixedUserInput  + tempTextLine ;
             } //end for
+			
+			
+	
+			//case if checkbox "support footer on" is ON, then include Support footer to fixed/edited text
+            if(this.ifSupportOnFlag){
+				this.fixedUserInput+= "</br>Best regards,</br>Waze Support team";
+			}      
+			
 			
 			this.countAllFoundErrors(); //run additional function to count all found errors
 			this.highlightErrors();     //run additional function to highlight errors in red
@@ -270,12 +322,16 @@ export default {
 			    responseZZ => {  
 			       //alert(77);
 			       computedAnswerFile.scrollResults(".resultFinal"); //Call the function from external file (/sub_functions/computedAnswer.js)
+				   //let z = b/0; //to trigger error manually to test catch section
 			    }
 			) 
              //catch
              .catch(errorX => {  //this name {errorX} must be the same as in {alert("Rejected: " + errorX))}
-                     // вторая функция - запустится при вызове reject
-                     alert("Rejected: " + errorX); // errorX is a rejectMe argument
+                    // вторая функция - запустится при вызове reject
+                    //alert("Rejected: " + errorX); // errorX is a rejectMe argument
+					
+					this.$swal('Error happened  ' + errorX);
+					
 			        
             });
 			//End Promise ->
@@ -294,59 +350,76 @@ export default {
         */		
 		countAllFoundErrors(){
 		
-		    let numb         = (this.userInput.match(/  +/g) || []).length;            //count doublespaces
-            let numbComma    = (this.userInput.match(/ \,+/g) || []).length;           //count space+comma
-            let numbDot      = (this.userInput.match(/ \.+/g) || []).length;           //count space+dot
-            let doubleWords  = (this.userInput.match(/\b(\w+)\s+\1\b/g) || []).length; //count all consecutive duplicate words
-            let doubleCommas = (this.userInput.match(/(\,\,+)/g  ) || []).length;      //count all consecutive duplicate commas (i.e ",,")
-            let doubleDots   = (this.userInput.match(/(\.\.+)/g  ) || []).length;      //count all consecutive duplicate dots (i.e "..")
-  
+		    let numb                 = (this.userInput.match(/  +/g) || []).length;            //count doublespaces
+            let numbComma            = (this.userInput.match(/ \,+/g) || []).length;           //count space+comma
+            let numbDot              = (this.userInput.match(/ \.+/g) || []).length;           //count space+dot
+            let doubleWords          = (this.userInput.match(/\b(\w+)\s+\1\b/g) || []).length; //count all consecutive duplicate words
+            let doubleCommas         = (this.userInput.match(/(\,\,+)/g  ) || []).length;      //count all consecutive duplicate commas (i.e ",,")
+            let doubleDots           = (this.userInput.match(/(\.\.+)/g  ) || []).length;      //count all consecutive duplicate dots (i.e "..")
+            let commaCharNoSpace     = (this.userInput.match(/\,(.)/g    ) || []).length;     // count comma followed by NO SPACE (i.e ",char")  //work here!!!!!!!     //comma followed by char no space (i.e "not,you")
+           
+			
             //Rex exp for misplaced ad pins
             let RegExp_underscore = /_/gi; // construct Regular expression
             let Underscore_ErrCount = (this.userInput.match(RegExp_underscore) || []).length; // count undescores (i.e "_")
   
-            //start Help Center issue---
-			/*
-            let hrefUrlBlankSpace =(this.userInput.match(/Help Center/gi) || []).length; // checking Help Center space; if blankspace is linked. Can't design it normally!!! 
-            if(hrefUrlBlankSpace>0){
-                $("body").append("<div id='popAlert' style='position:absolute;width:8%;height:20px;top:0px;left:0px;background:red;'><center>Caution -></center></div>");
-             }else{
-			     $('#popAlert').remove();
-		    }
-			*/
-            // END Help Center issue-----[
+  
+            
+			//case if checkbox "waze specifics" is ON, then include checking for some waze specifics  i.e "Please know that, Help Center". Notifications only (swal).
+            if(this.ifWazeSpecificsOnFlag){
+			
+                //start Help Center issue---
+			    
+                let hrefUrlBlankSpace = (this.userInput.match(/Help Center/gi) || []).length; // checking Help Center space; if blankspace is linked. Can't design it normally!!! 
+                if(hrefUrlBlankSpace > 0){
+                     this.$swal('Help Center reference is detected!!!');
+		        }
+                // END Help Center issue-----[
 
    
-            //Please know that(if that is missing)!!!!!!!!!!!!!!!!!!!!!!
-		    let RegExp_PlsKnow = /please (know||note) (?!that)\w*/gi;  //if set "\s*" after "(know||note)'->ERR //Reg Expression itself  http://www.regextester.com/15 //please (know||note) [^t][^h][^a][^t]*\w* /gi;
-	        let PlsKnowErrCount =(this.userInput.match(RegExp_PlsKnow ) || []).length; //count "please know"
-	        if(this.userInput.match(RegExp_PlsKnow)) { ///if at least 1 result
-			    alert('Missing "that" Error => '+ PlsKnowErrCount);
-			} 
-            //END Please know that(if that is missing)!!!!!!!!!!!!!!!!!!!!!!
-
+                //Please know that(if that is missing)!!!!!!!!!!!!!!!!!!!!!!
+		        let RegExp_PlsKnow  = /please (know||note) (?!that)\w*/gi;  //if set "\s*" after "(know||note)'->ERR //Reg Expression itself  http://www.regextester.com/15 //please (know||note) [^t][^h][^a][^t]*\w* /gi;
+	            let PlsKnowErrCount = (this.userInput.match(RegExp_PlsKnow ) || []).length; //count "please know"
+	            if(this.userInput.match(RegExp_PlsKnow)) { ///if at least 1 result
+			        //alert('Missing "that" Error => ' + PlsKnowErrCount);
+					this.$swal('Missing "that" error is detected! Found: ' + PlsKnowErrCount + ' issue');
+			    } 
+                //END Please know that(if that is missing)!!!!!!!!!!!!!!!!!!!!!!
+            }
+			//end //case if checkbox "waze specifics" is ON, then include checking for some waze specifics  i.e "Please know that, Help Center". Notifications only (swal).
 
   
             //let RegExp_commaNoSpaceChar=/\,([^ ])/g; // reg exp for (word ,word)
-            //let commaCharNoSpace =(this.userInput.match(RegExp_commaNoSpaceChar/*/\,([^ ])/g*/) || []).length; // count comma followed by NO SPACE (i.e ",char")  //work here!!!!!!!
+            //
             //let dotCharNoSpace =(this.userInput.match(/\.(.)/g) || []).length; // count dot followed by NO SPACE (.char)//NOT IMPLEMENTED
 
 
 
             // count all counts Errors all together (they are +-ed)
-            let AllErrorsCount = numb + numbComma + numbDot+doubleWords + doubleCommas + doubleDots/*+commaCharNoSpace*/  /*+PlsKnowErrCount*/   /* +Underscore_ErrCount */;  //
-		    this.foundErrorsCount = AllErrorsCount; //amount of found errors
-			(AllErrorsCount == 0) ? this.textAfterCorrection = "No correction was performed" : this.textAfterCorrection = "Text after correction";
+            let AllErrorsCount = numb + numbComma + numbDot+doubleWords + doubleCommas + doubleDots /* +  commaCharNoSpace */ /*+PlsKnowErrCount*/   /* +Underscore_ErrCount */;  //
 			
+			    
+				
 			//specify detailedListOfErrors
-			this.detailedListOfErrors = "<p class='margin-zz' style='margin-top: -0.7em;text-align:left;'> Double Spaces => "                     + numb         + "</p>" + 
-				                        "<p class='margin-zz' style='margin-top: -0.7em;text-align:left;'> Char followed by comma with space => " + numbComma    + "</p>" + 
-				                        "<p class='margin-zz' style='margin-top: -0.7em;text-align:left;'> Dots followed => "                     + numbDot      + "</p>" +
-				                        "<p class='margin-zz' style='margin-top: -0.7em;text-align:left;'> Consecutive duplicates => "            + doubleWords  + "</p>" +
-				                        "<p class='margin-zz' style='margin-top: -0.7em;text-align:left;'> Double commas => "                     + doubleCommas + "</p>" +
-				                        "<p class='margin-zz' style='margin-top: -0.7em;text-align:left;'> Double dots => "                       + doubleDots   + "</p>";
-				                        /* ';</br> Underscore => ' + Underscore_ErrCount  +  */   //deactivated for zzz production
-				                        /* '; </br>Comma+char with NO space => ' +commaCharNoSpace+*/  
+			this.detailedListOfErrors = "<p class='margin-zz' style='margin-top: -0.7em;text-align:left;'> Double Spaces => "                       + numb             + "</p>" + 
+				                        "<p class='margin-zz' style='margin-top: -0.7em;text-align:left;'> Char followed by comma with space => "   + numbComma        + "</p>" + 
+				                        "<p class='margin-zz' style='margin-top: -0.7em;text-align:left;'> Dots followed => "                       + numbDot          + "</p>" +
+				                        "<p class='margin-zz' style='margin-top: -0.7em;text-align:left;'> Consecutive duplicates => "              + doubleWords      + "</p>" +
+				                        "<p class='margin-zz' style='margin-top: -0.7em;text-align:left;'> Double commas => "                       + doubleCommas     + "</p>" +
+				                        "<p class='margin-zz' style='margin-top: -0.7em;text-align:left;'> Double dots => "                         + doubleDots       + "</p>";
+				                        /* "<p class='margin-zz' style='margin-top: -0.7em;text-align:left;'> Comma followed by char no space =>"      + commaCharNoSpace + "</p>"; */
+			                             /* ';</br> Underscore => ' + Underscore_ErrCount  +  */   //gone to if() condition below
+			
+			
+			//case if checkbox "check underscores" is ON, then include undescores to mistakes count (used for misplaces ad pins)
+            if(this.ifUnderscoreOnFlag){
+			    AllErrorsCount = AllErrorsCount + Underscore_ErrCount;
+				this.detailedListOfErrors = this.detailedListOfErrors + 
+				     "<p class='margin-zz' style='margin-top: -0.7em;text-align:left;'> Underscores => "  + Underscore_ErrCount   + "</p>";;
+			}
+			
+			this.foundErrorsCount = AllErrorsCount; //amount of found errors
+			(AllErrorsCount == 0) ? this.textAfterCorrection = "No correction was performed" : this.textAfterCorrection = "Text after correction";
 			
 
 		}, 
@@ -371,17 +444,23 @@ export default {
 		    let  arrayX2 = this.userInput.split('\n');
 			for(let j = 0; j < arrayX2.length; j++) {  
 			    let resHighlight = arrayX2[j] /*->double spaces*/
-	                .replace(/  +/g, "&nbsp;<span style='background:red;'> __ </span>&nbsp;") 
-					.replace(/ \,+/g, "&nbsp;<span style='background:red;'> __, </span>&nbsp;") 
-					.replace(/ \.+/g, "&nbsp;<span style='background:red;'> __. </span>&nbsp;") 
-	                .replace(/\b(\w+)\s+\1\b/g, "&nbsp;<span style='background:red;'> \$1 \$1 </span>&nbsp;") /*dublicate*/
-		            .replace(/\,\,+/g, "&nbsp;<span style='background:red;'> ,, </span>&nbsp;")               /*double,,*/
-		            .replace(/\.\.+/g, "&nbsp;<span style='background:red;'> .. </span>&nbsp;")               /*double..*/
-
-                   /*comma char no space(,word)*/  /*.replace(/\,(.)/g, " &nbsp;&nbsp;<span style='background:red;'>_ ,</span>&nbsp;")   */      
-                   /*underscore_*/   
-	               .replace(/_/gi, "&nbsp;<span style='background:red;'> _ </span>&nbsp;")         + "</br>";//!!!!problem here -> why not RegExp_commaNoSpaceChar  /*underscore Rex exp for misplaced ad pins*/
+	                .replace(/  +/g, "&nbsp;<span style='background:red;'> __ </span>&nbsp;")                 /* double blankspace */
+					.replace(/ \,+/g, "&nbsp;<span style='background:red;'> __, </span>&nbsp;")               /* space+comma       */
+					.replace(/ \.+/g, "&nbsp;<span style='background:red;'> __. </span>&nbsp;")               /* space+dot         */
+	                .replace(/\b(\w+)\s+\1\b/g, "&nbsp;<span style='background:red;'> \$1 \$1 </span>&nbsp;") /* dublicate         */
+		            .replace(/\,\,+/g, "&nbsp;<span style='background:red;'> ,, </span>&nbsp;")               /* double,,          */
+		            .replace(/\.\.+/g, "&nbsp;<span style='background:red;'> .. </span>&nbsp;")               /* double..          */
+                    /* .replace(/\,(.)/g, "&nbsp;&nbsp;<span style='background:red;'>_ ,</span>&nbsp;") */        /* comma char no space(,word) */ 
+                                                            				   
+	               + "</br>";
 	   
+	   
+	            //case if checkbox "check underscores" is ON, include undescores to highlighted text (used for misplaces ad pins)
+                if(this.ifUnderscoreOnFlag){
+				    resHighlight =  resHighlight.replace(/_/gi, "&nbsp;<span style='background:red;'> _ </span>&nbsp;");   /*underscore_*/  //!!!!problem here -> why not RegExp_commaNoSpaceChar  /*underscore Rex exp for misplaced ad pins*/
+			    }
+			
+			
 	            //add up finalText
 	            finalText = finalText + resHighlight;
 				
@@ -464,7 +543,26 @@ export default {
             document.execCommand('copy');
             // Remove the textarea;
             document.body.removeChild(t);
-		}
+		},
+		
+		
+		
+		//on checkbox change enable/disable checking undescored (used for misplaced ad pins)
+		toogleMisplacedAdPinsOn(){
+		    this.ifUnderscoreOnFlag  = !this.ifUnderscoreOnFlag; //switch state to change text and enable/disable checking misplaced Ad Pins.
+		},
+		
+
+		//on checkbox change enable/disable adding Support footer to edited/fixed tex 
+		toogleSupport(){
+		    this.ifSupportOnFlag  = !this.ifSupportOnFlag; //switch state to change text and enable/disable adding support footer
+		},
+		
+		//on checkbox change enable/disable checking if edited/fixed text will contain checking for some waze specifics, i.e "Please know that, Help Center"
+		toggleWazeSpecifics(){
+		    this.ifWazeSpecificsOnFlag  = !this.ifWazeSpecificsOnFlag; //switch state to change text and enable/disable
+		},
+		
     }		
 }
 </script>
@@ -481,21 +579,27 @@ ul {
   list-style-type: none;
   padding: 0;
 }
-li           {display: inline-block;margin: 0 10px;}
-a            {color: #42b983;}
-.resultFinal {border: 1px solid black; margin-top: 1em; padding: 1em 0.2em}
-.hightLighted{border: 1px solid black; margin-top: 1em; padding: 1em 0.2em}
-.red         {color: red;}
-.margin-zz    {margin: 0 !important; color:red !important; text-align:left; }
+li             {display: inline-block;margin: 0 10px;}
+a              {color: #42b983;}
+.resultFinal   {border: 1px solid black; margin-top: 1em; padding: 1em 0.2em}
+.hightLighted  {border: 1px solid black; margin-top: 1em; padding: 1em 0.2em}
+.red           {color: red;}
+.margin-zz     {margin: 0 !important; color:red !important; text-align:left; }
 
-.errors-div  {margin-top:2em;}
-.margin-top  {margin-top:2em;}
-.cursor-x    {}
-.cursor-x:hover   {text-decoration: underlined; color:red; cursor:pointer;}
-.text-bigger {font-size: 1.2em;}
-.red-bg      {background-color:red;}
-.footer      {margin-top: 26em;}
-.buttons-set {margin-top:4em;}
+.errors-div    {margin-top:2em;}
+.margin-top    {margin-top:2em;}
+.cursor-x      {}
+.cursor-x:hover{text-decoration: underlined; color:red; cursor:pointer;}
+.text-bigger   {font-size: 1.2em;}
+.red-bg        {background-color:red;}
+.footer        {margin-top: 26em;}
+.buttons-set   {margin-top:3em;}
+
+/*  mobile */
+@media screen and (max-width: 460px) {   
+    .check-options { font-size: 0.8em;}
+	.buttons-set   {margin-top: 1em;}
+}
 
 /* ----------------  Vue animation ----- */
 

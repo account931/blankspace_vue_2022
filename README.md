@@ -1,5 +1,7 @@
 # Blankspace_remover_vue
 
+> 99% the same as Cleansed version (Cleansed version contains less comments)
+
 > Text editing tool on Vue Framework
 
 ## Blankspace remover tool on Vue Framework.
@@ -30,6 +32,10 @@
 
 ![Screenshot](screenshots/5.png)
 
+## Checking for some specifics (if you tick the checkbox)
+
+![Screenshot](screenshots/6.png)
+![Screenshot](screenshots/7.png)
 
 ## Build Setup
 
