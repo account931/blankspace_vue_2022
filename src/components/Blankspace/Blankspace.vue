@@ -16,7 +16,7 @@
     			    <div class="col-sm-12 col-xs-12">	
     	                <form role="form">  	
     			            <div class="form-group">
-    				            <textarea v-model="userInput" class="form-control" rows="6" placeholder="Your text here.."  required></textarea>
+    				            <textarea  v-model="userInput" class="form-control" rows="6" placeholder="Your text here.."  required spellcheck="true"></textarea>
     		                </div>
 								
                         </form>
@@ -102,8 +102,8 @@
 						
 						
 						    <!-- Button "Copy text" -->
-						    <div class="col-sm-12 col-xs-12"> 
-						        <button class="btn" v-on:click="copyText"> 
+						    <div class="col-sm-12 col-xs-12">  
+						        <button class="btn" v-on:click="copyTextFunction"> 
 						           {{ copiedFlag ? "Copied successfully" : "Copy corrected text" }}
 						        </button> 
 						    </div> 
@@ -152,8 +152,11 @@
 </template>
 
 <script>
+//let Typo = require("typo-js"); //https://github.com/cfinke/Typo.js
+
 //import function from other external file
 import {computedAnswerFile} from './sub_functions/scroll_function.js';  //name in {} i.e 'computedAnswerFile' must be cooherent to name in "export const computedAnswerFile" in '/sub_functions/computedAnswer.js'
+import {copyExternalFunction} from './sub_functions/copy_function.js';
 
 //using other sub-component, in this case a component to draw the game Field
 import instructionField from './sub_components/instructions.vue';  //import file from same level folder
@@ -201,6 +204,7 @@ export default {
 		
 	//before mount
     beforeMount() {
+	     
 		//this.$store.dispatch('getCaptchaSet'); //trigger ajax function getCaptchaSet(), which is executed in Vuex store to REST Endpoint => /public/post/get_all	
 	},
 		
@@ -234,7 +238,7 @@ export default {
         |
         */		
 		proccessTextCore(){
-		
+		    
 		    //regExp to use -------
 		    //let doubleSpaces   = /\s\s+/g;           /*double spaces*   //new RegExp(/\s\s+/, "g");   
 			//let spaceComma     = / \,+/g;            /*space+comma*/
@@ -522,27 +526,9 @@ export default {
 
         },
 		
-		// function to copy text
-		copyText(){
-		   //$('#flashMessage').html(' Copied!!!!!!!').fadeOut(4500);
-		   	this.copiedFlag  = !this.copiedFlag; //switch state to change class.
-
-
-            // creating new textarea element and giveing it id 't'
-            var t = document.createElement('textarea');
-            t.id = 't';
-            // Optional step to make less noise in the page, if any!
-            t.style.height = 0;
-            // You have to append it to your page somewhere, I chose <body>
-            document.body.appendChild(t);
-            // Copy whatever is in your div to our new textarea
-            t.value = document.getElementById('fixedText').innerText;
-            // Now copy whatever inside the textarea to clipboard;
-            var selector = document.querySelector('#t');
-            selector.select();
-            document.execCommand('copy');
-            // Remove the textarea;
-            document.body.removeChild(t);
+		// function to copy text via external function
+		copyTextFunction(){ 
+		    copyExternalFunction.copyTextToClipBoard(this); //calling external file function, (this) arg is a must, otherwise crash	
 		},
 		
 		
