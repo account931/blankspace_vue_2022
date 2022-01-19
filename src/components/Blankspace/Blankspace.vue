@@ -11,12 +11,15 @@
             <div class="wrapper grey">
     		    <div class="container">
 
-				
+
+
+                    <div v-html="this.tempCheck"></div>
+				    
                     <!--------------------------------------------------- TextArea FORM  Start------------------------------------------------->
     			    <div class="col-sm-12 col-xs-12">	
     	                <form role="form">  	
     			            <div class="form-group">
-    				            <textarea  v-model="userInput" class="form-control" rows="6" placeholder="Your text here.."  required spellcheck="true"></textarea>
+    				            <textarea  v-model="userInput"  class="form-control" rows="6" placeholder="Your text here.."  required spellcheck="true"></textarea>
     		                </div>
 								
                         </form>
@@ -71,7 +74,9 @@
 					    <button id="examplebutton"     type="button" class="btn btn-primary btn-embossed btn-lg btn-wide bt-mobile-mine"  v-on:click="setExample">        Example     </button>
                         <button id="instructionButton" type="button" class="btn btn-success btn-embossed btn-lg btn-wide bt-mobile-mine"  v-on:click="setInstructions">   {{ this.instructionShowFlag ? "Hide instructions" : "Show instructions" }} </button>
                         <!--<button id="cr_footer" type="button" class="btn btn-success btn-embossed btn-lg btn-wide">CR Footer(N/A)</button>-->
-    		        </div>
+    		            <button type="button" class="btn btn-success btn-embossed btn-lg btn-wide bt-mobile-mine"  v-on:click="spellCheckLibrary">                        Typo JS Spell Check </button>
+
+					</div>
                     <!-------------------------------------------------------START BUTTONS---------------------------------------->
 
 
@@ -97,7 +102,7 @@
 				
 				            <!-- Fixed/Corrected text -->
 			                <div v-html="this.fixedUserInput" class="col-sm-12 col-xs-12 resultFinal" id="fixedText">       <!--  v-html to display unescaped HTML (with html tages -->
-				               {{ this.fixedUserInput }}
+				               {{ /* this.fixedUserInput */ }}
 				            </div> 
 						
 						
@@ -152,7 +157,7 @@
 </template>
 
 <script>
-//let Typo = require("typo-js"); //https://github.com/cfinke/Typo.js
+let Typo = require("typo-js/typo.js"); //Use/require "typo-js" for check spell //https://github.com/cfinke/Typo.js
 
 //import function from other external file
 import {computedAnswerFile} from './sub_functions/scroll_function.js';  //name in {} i.e 'computedAnswerFile' must be cooherent to name in "export const computedAnswerFile" in '/sub_functions/computedAnswer.js'
@@ -192,6 +197,7 @@ export default {
 			
 			//regExp
 			//doubleSpaces: new RegExp(/\s\s+/g),   /*double spaces*
+			tempCheck :'Spell check will be here, if u click..',
         }
     },
   
@@ -239,6 +245,8 @@ export default {
         */		
 		proccessTextCore(){
 		    
+		
+			
 		    //regExp to use -------
 		    //let doubleSpaces   = /\s\s+/g;           /*double spaces*   //new RegExp(/\s\s+/, "g");   
 			//let spaceComma     = / \,+/g;            /*space+comma*/
@@ -490,6 +498,7 @@ export default {
 			this.textAfterCorrection = "";
 			this.instructionShowFlag = false;
 			this.resultsShowFlag     = false;
+			this.tempCheck           = "";  //Typo-js text
         },
         
 		//function to show/hide instructions
@@ -549,9 +558,108 @@ export default {
 		    this.ifWazeSpecificsOnFlag  = !this.ifWazeSpecificsOnFlag; //switch state to change text and enable/disable
 		},
 		
+		
+		
+		
+		//Typo JS functions, so far works on Click
+		spellCheckLibrary(){
+		    //Typo-js Library (spell check)-------
+			
+			
+			
+			//decide which url to use, switching ajax url when running on  http://localhost:8080/ (hot reload) or OpenServer Hosting
+			let dynamicPath; //path for 
+	        var localhostURL      = "/static/dictionaries";
+            var realServerProdURL = "../static/dictionaries"; 
+	     
+		  
+	        //if finds "/localhost:8080/" in current url. Url for case when app is runing in (npm run dev) hot reload
+	        if(window.location.href.match(/localhost:8080/)){   
+		        dynamicPath = localhostURL; 
+			}
+			
+	        //if finds "/localhost/" in current url. Url for case when app is runing in OpenServer 
+	        if(window.location.href.match(/localhost/)){    
+		       dynamicPath = realServerProdURL;
+	        } else {
+			    //case when app is runing in real web-host. Library must be in the same root with index.html
+			    dynamicPath = localhostURL; 
+			}
+			
+			alert("Path is " + dynamicPath);
+			
+			//Check if path to dictionary exists
+			if(this.checkFileExist(dynamicPath)){  //  "/static/dictionaries"
+			    alert("Dictionaty is OK");
+			} else {
+			    alert("Dictionaty is not found");
+			    return false;
+			}
+			
+			
+			
+			
+            let dictionary = new Typo("en_US", false, false, { dictionaryPath: dynamicPath });     //{ dictionaryPath: "/static/dictionaries" }
+			
+			let tt = "Found misspelled: ";
+			let spellErrorFound = false;
+			
+            let  arrayX2 = this.userInput.split('\n');
+			for(let i = 0; i < arrayX2.length; i++) {  
+			    
+				let  arrayX3 =  arrayX2[i].split(' '); 
+			    for(let j = 0; j < arrayX3.length; j++) {
+				
+				    //alert(arrayX3[j]); //one single word, e.g "opera"
+					let currWord = arrayX3[j].replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,""); //removes any punctuations mark from string, as any presnet followed by word, Typo-JS gives incorrect check, i.e "opera." checked as wrong
+			        let is_spelled_correctly = dictionary.check(currWord); //check the one current word
+					
+					if(is_spelled_correctly){ //if spelling OK
+					    //tt = tt + "  " + arrayX3[j];
+                         						
+					} else {
+					    tt = tt + " <span style='color:red;'>" + arrayX3[j] + "</span> "; 
+						spellErrorFound = true;
+					}
+					
+			        //console.log(is_spelled_correctly); //true/false
+				}
+			}
+			this.tempCheck = tt;
+			//this.userInput = tt;
+			
+			if(spellErrorFound){
+				this.$swal('Spelling error found');
+			} else {
+			    this.$swal('No spelling error found');
+			    this.tempCheck = "No spelling errors found";
+			}
+		     
+		},
+		
+		
+		//check if path exists, used to check before load the Dictionary for Typo-js
+		checkFileExist(urlToFile) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', urlToFile, false);
+            xhr.send();
+     
+            if (xhr.status == "404") {
+                return false;
+            } else {
+                return true;
+            }
+        },
+		
+		
     }		
 }
 </script>
+
+
+
+
+
 
 
 
