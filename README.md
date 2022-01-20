@@ -2,15 +2,15 @@
 
 > 99% the same as Cleansed version (Cleansed version contains less comments)
 
-> Text editing tool on Vue Framework. Additionally uses Typo-JS Library for spell check (https://github.com/cfinke/Typo.js)
-> For production Typo-JS Library Dictionary must be in the same root with index.html (in /dist)
+> Text editing tool on Vue Framework. Additionally uses Typo-JS Library for spell check (https://github.com/cfinke/Typo.js) + Element-UI Library.
+> 
 
-- <p> How to use Typo-js Library: </p>
+##  How to use Typo-js Library: 
 - <p> Use `npm i typo-js` to install .</p>
-- <p> In Vue case, copy Dictionary content files from /node_modules/typo-js/dictionaries to /static/dictionaries </p>
-- <p> To init Typo-js object, specify the dictionary  folder path =>  `let dictionary = new Typo("en_US", false, false, { dictionaryPath: "/static/dictionaries" }); ` 
-      To check a work use =>  `let is_spelled_correctly = dictionary.check(currWord);  //return true/false `
-</p>
+- <p> In Vue case, copy Dictionary content files from /node_modules/typo-js/dictionaries to /static/dictionaries. For production Typo-JS Library Dictionary must be in the same root with index.html (in /dist) </p>
+- <p> To init Typo-js object, specify the dictionary  folder path =>  `let dictionary = new Typo("en_US", false, false, { dictionaryPath: "/static/dictionaries" }); ` </p>
+- <p> To check a word spelling use =>  `let is_spelled_correctly = dictionary.check(currWord);  //return true/false ` </p>
+
 
 
 

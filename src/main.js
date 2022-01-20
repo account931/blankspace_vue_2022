@@ -11,6 +11,12 @@ import 'sweetalert2/dist/sweetalert2.min.css';
 Vue.use(VueSweetalert2);
 //vue-sweetalert2
 
+//Element-UI
+import ElementUI from 'element-ui'; //import ElementUI Library
+import 'element-ui/lib/theme-chalk/index.css'; //moved as sepearate CSS Fileto css in /layout/app.php
+Vue.use(ElementUI); //connect Vue to use with ElementUI
+
+
 
 Vue.config.productionTip = false
 

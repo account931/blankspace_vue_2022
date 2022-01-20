@@ -1,5 +1,5 @@
 <template>
-    <div class="col-sm-12 col-xs-12">
+    <div class="col-sm-12 col-xs-12 blankspace">
 	
 	    <div id="headX" class="jumbotron text-center" style =' background-color: #2ba6cb;'> <!--#2ba6cb;-->
             <h1 id="h1Text"> <span id="textChange"> Double blankspace removal</span> <span class="glyphicon glyphicon glyphicon-link myclip"></span>  </h1>
@@ -11,9 +11,11 @@
             <div class="wrapper grey">
     		    <div class="container">
 
-
-
-                    <div v-html="this.tempCheck"></div>
+ 
+ 
+ 
+                    <!-- Show misspelled words by Typo-JS -->
+                    <div v-html="this.typoJSSpellCheck_cut"></div>
 				    
                     <!--------------------------------------------------- TextArea FORM  Start------------------------------------------------->
     			    <div class="col-sm-12 col-xs-12">	
@@ -72,9 +74,9 @@
     				    <button id="splitButton"       type="button" class="btn btn-primary btn-embossed btn-lg btn-wide bt-mobile-mine"  v-on:click="proccessTextCore">  Run a check </button>
                         <button id="clearButton"       type="button" class="btn btn-danger btn-embossed btn-lg btn-wide bt-mobile-mine"   v-on:click="clear">             &nbsp;Reset&nbsp;       </button >
 					    <button id="examplebutton"     type="button" class="btn btn-primary btn-embossed btn-lg btn-wide bt-mobile-mine"  v-on:click="setExample">        Example     </button>
-                        <button id="instructionButton" type="button" class="btn btn-success btn-embossed btn-lg btn-wide bt-mobile-mine"  v-on:click="setInstructions">   {{ this.instructionShowFlag ? "Hide instructions" : "Show instructions" }} </button>
+                        <button id="instructionButton" type="button" class="btn btn-success btn-embossed btn-lg btn-wide bt-mobile-mine"  v-on:click="setInstructions">   {{ this.instructionShowFlag ? "Hide instructions" : "Show instructions"  }} </button>
                         <!--<button id="cr_footer" type="button" class="btn btn-success btn-embossed btn-lg btn-wide">CR Footer(N/A)</button>-->
-    		            <button type="button" class="btn btn-success btn-embossed btn-lg btn-wide bt-mobile-mine"  v-on:click="spellCheckLibrary">                        Typo JS Spell Check </button>
+    		            <button type="button" class="btn btn-success btn-embossed btn-lg btn-wide bt-mobile-mine"  v-on:click="run_typo_js_spellCheckLibrary">            {{ this.typoJSCheckFlag      ? "Checking..."      : "Typo JS Spell Check" }} </button>
 
 					</div>
                     <!-------------------------------------------------------START BUTTONS---------------------------------------->
@@ -153,11 +155,43 @@
     	
         </div> <!-- /.item -->
 			
-    </div>	
+    
+	
+	
+	
+	    <!-- Modal window contains Typo-JS highlighted spell errors in text -->
+        <div id="myModal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                       <button type="button" class="close" data-dismiss="modal">&times;</button>
+                       <h4 class="modal-title">Modal Header</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>See errors and fix them.</p>
+						
+						<!-- contains whole textarea input with highlighted misspelled words (by Typo-js) -->
+						<div v-html="this.typoJSSpellCheck_full" class="col-sm-12 col-xs-12"></div>       <!--  v-html to display unescaped HTML (with html tages -->
+						
+                    </div>
+                    <div class="modal-footer">
+					   <button v-on:click="fixModalChanges" type="button" class="btn btn-default" data-dismiss="modal" >Fix changes</button>
+                       <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- End Modal window contains Typo-JS highlighted spell errors in text -->
+		
+		
+		
+  </div> <!-- end class="blankspace" -->
 </template>
 
 <script>
-let Typo = require("typo-js/typo.js"); //Use/require "typo-js" for check spell //https://github.com/cfinke/Typo.js
+let Typo = require("typo-js/typo.js"); //Use/require "typo-js" JS Library for check spell //https://github.com/cfinke/Typo.js
 
 //import function from other external file
 import {computedAnswerFile} from './sub_functions/scroll_function.js';  //name in {} i.e 'computedAnswerFile' must be cooherent to name in "export const computedAnswerFile" in '/sub_functions/computedAnswer.js'
@@ -186,6 +220,8 @@ export default {
 			showDetailedErrorsFlag : false,  //CSS to show/hide detailed list with errors
 			showHighLightErrorsFlag: false,  //CSS to show/hide highlited red text
 			copiedFlag             : false,  //CSS to change text "Copy" / "Copied"
+			typoJSCheckFlag        : false,   //CSS to change text "Typo Js Check spell" / "Checking"
+			
 			ifUnderscoreOnFlag     : false,  //checkbox flag to decide if text editing will include checking/removing underscore (_, e.g for misplaced ad pins)
 			ifSupportOnFlag        : false,  //checkbox flag to decide if edited/fixed text will contain support footer
 			ifWazeSpecificsOnFlag  : false,  //checkbox flag to decide if edited/fixed text will contain checking for some waze specifics, i.e "Please know that, Help Center"
@@ -197,7 +233,9 @@ export default {
 			
 			//regExp
 			//doubleSpaces: new RegExp(/\s\s+/g),   /*double spaces*
-			tempCheck :'Spell check will be here, if u click..',
+			typoJSSpellCheck_cut  :'Spell check will be here..', //string contains list of misspelled words (by Typo-js)
+			typoJSSpellCheck_full :'',                           //string contains whole textarea input with highlighted misspelled words (by Typo-js)
+			arrayOfMisspelledWords:[],                           //array contains list of misspelled words (by Typo-js)
         }
     },
   
@@ -498,7 +536,7 @@ export default {
 			this.textAfterCorrection = "";
 			this.instructionShowFlag = false;
 			this.resultsShowFlag     = false;
-			this.tempCheck           = "";  //Typo-js text
+			this.typoJSSpellCheck_cut           = "";  //Typo-js text
         },
         
 		//function to show/hide instructions
@@ -561,48 +599,63 @@ export default {
 		
 		
 		
-		//Typo JS functions, so far works on Click
-		spellCheckLibrary(){
+		
+		/*
+        |--------------------------------------------------------------------------
+        | Typo JS functions, so far works on Click
+        |--------------------------------------------------------------------------
+        |
+        |
+        */
+		run_typo_js_spellCheckLibrary(){
 		    //Typo-js Library (spell check)-------
 			
+			//let that = this;
+			this.typoJSCheckFlag = true; //CSS flag for button text
+			//this.typoJSCheckFlag  = !this.typoJSCheckFlag; //switch state to change text and enable/disable
+			this.arrayOfMisspelledWord = [];// reset the array of misspelled words
 			
+			
+			let foundMisspelledWords  = "Found misspelled: ";  //list of misspelled words 
+			let all_text              = "";                    // contains whole textarea input with highlighted misspelled words (by Typo-js)
+			let spellErrorFound       = false;
 			
 			//decide which url to use, switching ajax url when running on  http://localhost:8080/ (hot reload) or OpenServer Hosting
 			let dynamicPath; //path for 
-	        var localhostURL      = "/static/dictionaries";
-            var realServerProdURL = "../static/dictionaries"; 
+	        let localhost8080     = "/static/dictionaries";
+            let localhostOpServer = "../static/dictionaries"; 
+			let realServerProdURL = "static/dictionaries";
 	     
 		  
 	        //if finds "/localhost:8080/" in current url. Url for case when app is runing in (npm run dev) hot reload
 	        if(window.location.href.match(/localhost:8080/)){   
-		        dynamicPath = localhostURL; 
+		        dynamicPath = localhost8080 ; 
 			}
 			
 	        //if finds "/localhost/" in current url. Url for case when app is runing in OpenServer 
 	        if(window.location.href.match(/localhost/)){    
-		       dynamicPath = realServerProdURL;
+		       dynamicPath = localhostOpServer ;
 	        } else {
 			    //case when app is runing in real web-host. Library must be in the same root with index.html
-			    dynamicPath = localhostURL; 
+			    dynamicPath = realServerProdURL; 
 			}
 			
-			alert("Path is " + dynamicPath);
+			//alert("Path is " + dynamicPath);
 			
 			//Check if path to dictionary exists
 			if(this.checkFileExist(dynamicPath)){  //  "/static/dictionaries"
-			    alert("Dictionaty is OK");
+			    alert("Dictionary load is OK");
 			} else {
-			    alert("Dictionaty is not found");
+			    alert("Dictionary is not found");
 			    return false;
 			}
 			
 			
 			
 			
-            let dictionary = new Typo("en_US", false, false, { dictionaryPath: dynamicPath });     //{ dictionaryPath: "/static/dictionaries" }
-			
-			let tt = "Found misspelled: ";
-			let spellErrorFound = false;
+          
+			//Check the textarea input by Typo-js
+			let dictionary = new Typo("en_US", false, false, { dictionaryPath: dynamicPath });     //{ dictionaryPath: "/static/dictionaries" }
 			
             let  arrayX2 = this.userInput.split('\n');
 			for(let i = 0; i < arrayX2.length; i++) {  
@@ -615,24 +668,69 @@ export default {
 			        let is_spelled_correctly = dictionary.check(currWord); //check the one current word
 					
 					if(is_spelled_correctly){ //if spelling OK
-					    //tt = tt + "  " + arrayX3[j];
-                         						
+					    //foundMisspelledWords = foundMisspelledWords + "  " + arrayX3[j];
+						all_text = all_text + "  " + arrayX3[j];
+                    
+                    //if spelling is wrong					
 					} else {
-					    tt = tt + " <span style='color:red;'>" + arrayX3[j] + "</span> "; 
+					
+					    //add misspelled to array
+						this.arrayOfMisspelledWords.push(currWord);
+					    
+					    //get suggestions for misspelled word (by typo-js)
+					    let array_of_suggestions = dictionary.suggest(currWord); //to get suggested corrections for a misspelled word
+						console.log(array_of_suggestions);
+						/*
+						let tooltipText = "";
+						for(let i =  0; i < array_of_suggestions.length; i++){
+						    tooltipText+= array_of_suggestions[i] + " \n ";
+						}*/
+						
+						//create checkbox/select/option with misspelled suggestions
+						let checkBox = "<select v-on:change='onSelectOption(e)'  class='suggests'> <option value='" + currWord + "' selected>" + currWord + "</option>"; //onchange='onSelectOption(this.value)'   @change='onSelectOption($event)' 
+						for(let i =  0; i < array_of_suggestions.length; i++){
+						    checkBox+= "<option  value='" + array_of_suggestions[i] + "'>" + array_of_suggestions[i] + "</option>";
+						}
+						checkBox+= "</select>";
+						
+  
+						
+						//alert(tooltipText);
+						//end get suggestions for misspelled word (by typo-js)
+						
+					    foundMisspelledWords = foundMisspelledWords +  " <span style='color:red;'>" + arrayX3[j] + "</span> "; //list of misspelled words
+						all_text+= " <span style='color:red;'>" + checkBox + "</span> ";           //contains whole textarea input with highlighted misspelled words (by Typo-js)
+
+						//all_text+= " <span style='color:red;' title='" + tooltipText + "'>" + arrayX3[j] + "</span> ";           //contains whole textarea input with highlighted misspelled words (by Typo-js)
+						//all_text+= " <el-tooltip class='item' effect='dark' content='" + tooltipText + "' placement='top'><el-button> topfff </el-button></el-tooltip>";
+
 						spellErrorFound = true;
 					}
 					
 			        //console.log(is_spelled_correctly); //true/false
+					
+					
+					
+	
+	
 				}
 			}
-			this.tempCheck = tt;
-			//this.userInput = tt;
+			
+			 //CSS flag for button text
+			let that = this;
+			setTimeout(function(){ that.typoJSCheckFlag = false; }, 2700);
+			
+			this.typoJSSpellCheck_cut  = foundMisspelledWords;
+			this.typoJSSpellCheck_full = all_text;
+			//this.userInput = foundMisspelledWords;
 			
 			if(spellErrorFound){
 				this.$swal('Spelling error found');
+				
+                this.typoJSSpellCheck_cut+= '</br> <button type="button" class="btn btn-info" data-toggle="modal" data-target="#myModal">Open to fix</button>'; //<!-- Trigger the modal with a button -->
 			} else {
 			    this.$swal('No spelling error found');
-			    this.tempCheck = "No spelling errors found";
+			    this.typoJSSpellCheck_cut = "No spelling errors found";
 			}
 		     
 		},
@@ -651,6 +749,52 @@ export default {
             }
         },
 		
+		
+		// Does not work (on change <select><option>)
+		onSelectOption:function(e){
+		   alert(9);
+		},
+		
+		//when user clicks "Fix changes" in modal window with options dropdowns
+		fixModalChanges(){
+		    alert('fixing now');
+			let arrayIndexOfWordsToFix = [];
+			let r = "";  
+			//console.log(this.arrayOfMisspelledWords);
+			console.log("this.typoJSSpellCheck_full: " + this.typoJSSpellCheck_full);
+			
+			let textWithoutTags = this.typoJSSpellCheck_full.replace(/<[^>]*>?/gm, ''); //remove all html tags from text in modal window 
+			console.log(textWithoutTags);
+			
+			let n = textWithoutTags.replace( /\s\s+/g, ' ' );     /* remove double spaces*/
+			
+			let arrayTextWithoutTags = n.split(' ');  //.split('\n');  //text to array
+			console.log("arrayTextWithoutTags:" + arrayTextWithoutTags);
+			
+			let userInputText = this.userInput.split(' ');  //.split('\n')
+			
+			
+			//finds the array index/position of found misspelled
+			for(let i = 0; i < this.arrayOfMisspelledWords.length; i++){
+			    let searchWord = this.arrayOfMisspelledWords[i]; //one current misspelled word
+			    let result = userInputText.indexOf(searchWord); //array index/position of found misspelled
+				r+= "got: " + result;
+				arrayIndexOfWordsToFix.push(result);
+			}
+			alert(r);
+			
+			//fixes text
+			for(let i = 0; i < arrayIndexOfWordsToFix.length; i++){
+			    //let fixedWordIndex = arrayTextWithoutTags   userInputText.indexOf(this.arrayOfMisspelledWords[i]);
+				
+			    userInputText[arrayIndexOfWordsToFix[i]] =  arrayTextWithoutTags[arrayIndexOfWordsToFix[i] + 1 ]; //" screw "; //this.arrayOfMisspelledWords[i];
+			}
+			
+			let b = userInputText.join(' ');
+			this.userInput = b;
+			
+			
+		},
 		
     }		
 }
