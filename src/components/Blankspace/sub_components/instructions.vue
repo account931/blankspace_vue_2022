@@ -31,6 +31,7 @@
             </br>9.Removes underscore (if you tick "Check underscore" checkbox on). Useful for misplaced add pins
 			</br>10. Adds Support footer to the text (if you tick "Support footer" checkbox on)
 			</br>10. Check for some waze specifics, e.g Pls know /Help center (if you tick "Waze specific" checkbox on). Notifications only.
+			</br>11. Separate spell check by Typo-JS, use button "Typo-Js Spell check"
 			
             <!--</br>10.Pls know /Help center - > <span style="color:red;"> notifications only</span>-->
             <!--</br>11.Double paragraphs - > <span style="color:red;"> being implemented</span>-->

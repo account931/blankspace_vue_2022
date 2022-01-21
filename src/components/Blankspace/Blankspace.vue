@@ -14,10 +14,14 @@
  
  
  
-                    <!-- Show misspelled words by Typo-JS -->
-                    <div v-html="this.typoJSSpellCheck_cut"></div>
+                    <!--------- Show misspelled words by Typo-JS ---------------->
+                    <div v-html="this.typoJSSpellCheck_cut" class="misspelled"></div>
+					<!--------- Show misspelled words by Typo-JS ---------------->
+					
+					
+					
 				    
-                    <!--------------------------------------------------- TextArea FORM  Start------------------------------------------------->
+                    <!--------------------------------------------------- Textarea form  Start------------------------------------------------->
     			    <div class="col-sm-12 col-xs-12">	
     	                <form role="form">  	
     			            <div class="form-group">
@@ -26,7 +30,7 @@
 								
                         </form>
     			    </div>	
-                    <!--------------------------------------------------- TextArea FORM END------------------------------------------------->
+                    <!--------------------------------------------------- Textarea form END------------------------------------------------->
     			
 				
 				
@@ -167,7 +171,7 @@
                 <div class="modal-content">
                     <div class="modal-header">
                        <button type="button" class="close" data-dismiss="modal">&times;</button>
-                       <h4 class="modal-title">Modal Header</h4>
+                       <h4 class="modal-title">Fix misspelled words</h4>
                     </div>
                     <div class="modal-body">
                         <p>See errors and fix them.</p>
@@ -233,7 +237,7 @@ export default {
 			
 			//regExp
 			//doubleSpaces: new RegExp(/\s\s+/g),   /*double spaces*
-			typoJSSpellCheck_cut  :'Spell check will be here..', //string contains list of misspelled words (by Typo-js)
+			typoJSSpellCheck_cut  :'Spell errors will be here (click "typo spell check") ..', //string contains list of misspelled words (by Typo-js)
 			typoJSSpellCheck_full :'',                           //string contains whole textarea input with highlighted misspelled words (by Typo-js)
 			arrayOfMisspelledWords:[],                           //array contains list of misspelled words (by Typo-js)
         }
@@ -602,7 +606,7 @@ export default {
 		
 		/*
         |--------------------------------------------------------------------------
-        | Typo JS functions, so far works on Click
+        | Typo JS functions, works on btn Click, finds misspelled words, display them above the textarea and prompts user to open modal window where he can fix the errors
         |--------------------------------------------------------------------------
         |
         |
@@ -610,10 +614,17 @@ export default {
 		run_typo_js_spellCheckLibrary(){
 		    //Typo-js Library (spell check)-------
 			
+			//if no user printed no input
+			if(this.userInput == ""){
+			    this.$swal('Input is empty');
+				return false;
+			}
+			
+			
 			//let that = this;
 			this.typoJSCheckFlag = true; //CSS flag for button text
-			//this.typoJSCheckFlag  = !this.typoJSCheckFlag; //switch state to change text and enable/disable
-			this.arrayOfMisspelledWord = [];// reset the array of misspelled words
+			
+			this.arrayOfMisspelledWords = [];// reset the array of misspelled words
 			
 			
 			let foundMisspelledWords  = "Found misspelled: ";  //list of misspelled words 
@@ -654,31 +665,39 @@ export default {
 			
 			
           
+	
+				
+		   
 			//Check the textarea input by Typo-js
 			let dictionary = new Typo("en_US", false, false, { dictionaryPath: dynamicPath });     //{ dictionaryPath: "/static/dictionaries" }
 			
-            let  arrayX2 = this.userInput.split('\n');
+            let  arrayX2 = this.userInput.split('\n'); //split textarea input (string) to array by ('\n'). E.g "Lilly awoke  in an evening dress and opera cloak."
+			
 			for(let i = 0; i < arrayX2.length; i++) {  
 			    
-				let  arrayX3 =  arrayX2[i].split(' '); 
+				let  arrayX3 =  arrayX2[i].split(' ');  //split every line by separate words. E.g "opera"
 			    for(let j = 0; j < arrayX3.length; j++) {
 				
 				    //alert(arrayX3[j]); //one single word, e.g "opera"
-					let currWord = arrayX3[j].replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,""); //removes any punctuations mark from string, as any presnet followed by word, Typo-JS gives incorrect check, i.e "opera." checked as wrong
-			        let is_spelled_correctly = dictionary.check(currWord); //check the one current word
+					//!!! let currWord = arrayX3[j].replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,""); //removes any punctuations mark from string, as any presnet followed by word, Typo-JS gives incorrect check, i.e "opera." checked as wrong
+			        
+					let currWord         = arrayX3[j]; //i.e one word from textarea to check, if it contains punctuantion, it is also included e.g "awoke,"
+					let currWordPurified = arrayX3[j].replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,""); //i.e one word from textarea to check, but if it contains any punctuantion, we remove it //removes any punctuations mark from string, as any presnet followed by word, Typo-JS gives incorrect check, i.e "opera." checked as wrong
+				    
+					let is_spelled_correctly = dictionary.check(currWordPurified); //check the one current word by Typo-JS Library
 					
-					if(is_spelled_correctly){ //if spelling OK
+					if(is_spelled_correctly){ //if spelling OK (by Typo-JS Library), can return boolean true or false
 					    //foundMisspelledWords = foundMisspelledWords + "  " + arrayX3[j];
 						all_text = all_text + "  " + arrayX3[j];
                     
-                    //if spelling is wrong					
+                    //if spelling is wrong (by Typo-JS Library)				
 					} else {
 					
-					    //add misspelled to array
+					    //add misspelled word to array
 						this.arrayOfMisspelledWords.push(currWord);
 					    
 					    //get suggestions for misspelled word (by typo-js)
-					    let array_of_suggestions = dictionary.suggest(currWord); //to get suggested corrections for a misspelled word
+					    let array_of_suggestions = dictionary.suggest(currWordPurified); //to get suggested corrections word variants for a misspelled word by Typo-JS Library. E.g if it "wodke", the suggestions will be ["woke", "awoke']
 						console.log(array_of_suggestions);
 						/*
 						let tooltipText = "";
@@ -686,8 +705,8 @@ export default {
 						    tooltipText+= array_of_suggestions[i] + " \n ";
 						}*/
 						
-						//create checkbox/select/option with misspelled suggestions
-						let checkBox = "<select v-on:change='onSelectOption(e)'  class='suggests'> <option value='" + currWord + "' selected>" + currWord + "</option>"; //onchange='onSelectOption(this.value)'   @change='onSelectOption($event)' 
+						//create checkbox/select/option with misspelled word suggestions.  E.g if it "wodke", the suggestions will be ["woke", "awoke']
+						let checkBox = "<select v-on:change='onSelectOption(e)'  class='suggests'> <option value='" + currWordPurified + "' selected>" + currWordPurified + "</option>"; //onchange='onSelectOption(this.value)'   @change='onSelectOption($event)' 
 						for(let i =  0; i < array_of_suggestions.length; i++){
 						    checkBox+= "<option value='" + array_of_suggestions[i] + "'>" + array_of_suggestions[i] + "</option>";
 						}
@@ -695,11 +714,10 @@ export default {
 						
   
 						
-						//alert(tooltipText);
 						//end get suggestions for misspelled word (by typo-js)
 						
-					    foundMisspelledWords = foundMisspelledWords +  " <span style='color:red;'>" + arrayX3[j] + "</span> "; //list of misspelled words
-						all_text+= " <span style='color:red;'>" + checkBox + "</span> ";           //contains whole textarea input with highlighted misspelled words (by Typo-js)
+					    foundMisspelledWords = foundMisspelledWords +  " <span style='color:red;'>" + arrayX3[j] + "</span> "; //to end the list of misspelled words
+						all_text+= " <span style='color:red;'>" + checkBox + "</span> ";           //contains whole textarea input with highlighted misspelled words and suggestions dropdown (by Typo-js)
 
 						//all_text+= " <span style='color:red;' title='" + tooltipText + "'>" + arrayX3[j] + "</span> ";           //contains whole textarea input with highlighted misspelled words (by Typo-js)
 						//all_text+= " <el-tooltip class='item' effect='dark' content='" + tooltipText + "' placement='top'><el-button> topfff </el-button></el-tooltip>";
@@ -710,13 +728,10 @@ export default {
 			        //console.log(is_spelled_correctly); //true/false
 					
 					
-					
-	
-	
 				}
 			}
 			
-			 //CSS flag for button text
+			 //CSS flag to change button text
 			let that = this;
 			setTimeout(function(){ that.typoJSCheckFlag = false; }, 2700);
 			
@@ -736,7 +751,11 @@ export default {
 		},
 		
 		
-		//check if path exists, used to check before load the Dictionary for Typo-js
+		
+		
+		
+		
+		//function to check if path exists, used to check before load the Dictionary for Typo-js
 		checkFileExist(urlToFile) {
             var xhr = new XMLHttpRequest();
             xhr.open('GET', urlToFile, false);
@@ -750,7 +769,7 @@ export default {
         },
 		
 		
-		// Does not work (on change <select><option>)
+		// Does not work (on change <select><option>). NOT USED
 		onSelectOption:function(e){
 		   alert(9);
 		},
@@ -761,33 +780,40 @@ export default {
 		
 		
 		
-		//when user clicks "Fix changes" in modal window with options dropdowns, we finds the index/position in the array of found misspelled word + finds selected dropdown text + fixes textarea text in loop
+		
+		/*
+        |--------------------------------------------------------------------------
+        | When user clicks "Fix changes" in modal window with options dropdowns, we finds the index/position in the array of found misspelled word + finds selected dropdown text + fixes textarea text in loop
+	    | Check the textarea input by Typo-js and suggests correct variants in dropdowns
+        |--------------------------------------------------------------------------
+        |
+        |
+        */
 		fixModalChanges(){
 		    alert('fixing now');
-			let arrayIndexOfWordsToFix = []; //DON"T need this, as arrayIndexOfWordsToFix == arrayOfMisspelledWords
-			let r = "";  
-			//console.log(this.arrayOfMisspelledWords);
+			let r = "";  //just for alert string
+			console.log("this.arrayOfMisspelledWords:" + this.arrayOfMisspelledWords);
 			console.log("this.typoJSSpellCheck_full: " + this.typoJSSpellCheck_full);
 			
 			
 			
-	
 			
-			
-			
-			let textWithoutTags = this.typoJSSpellCheck_full.replace(/<[^>]*>?/gm, ''); //remove all html tags from text in modal window 
+			let textWithoutTags = this.typoJSSpellCheck_full.replace(/<[^>]*>?/gm, ''); //remove all html tags from text in modal window, as it includes <select><option> suggestion1 </option> <option> suggestion2 </option> <select>
 			console.log(textWithoutTags);
 			
-			let n = textWithoutTags.replace( /\s\s+/g, ' ' );     /* remove all double spaces in text*/
-			n =  n.trim(); // stripped of whitespace characters from beginning and end of a string
+			let n = textWithoutTags.replace( /\s\s+/g, ' ' );     /* remove all double spaces in text, otherwise produces incorrect result */
+			n =  n.trim(); // stripped of whitespace characters from beginning and end of a string, otherwise produces incorrect result
 			
-			let arrayTextWithoutTags = n.split(' ');  //.split('\n');  //convert text to array
+			let arrayTextWithoutTags = n.split(' ');  //.split('\n');  //convert modal window text (string) to array
 			console.log("arrayTextWithoutTags:" + arrayTextWithoutTags);
 			
 			
-			//gets the copy textarea input for further manipulation without affecting textarea input
-			let userInputText = this.userInput.split(' ');  //.split('\n')  //textarea input
+			//copy textarea input to a new var for further manipulation without affecting textarea input   !!!!!!!!!!!!!!!!!!!!!!!
+			let userInputText = this.userInput; 
+			userInputText     = userInputText.replace( /\s\s+/g, ' ' );     /* remove all double spaces in text*/
+			userInputText     = userInputText.split(' ');  //.split('\n')  //textarea input to array
 			
+			console.log("userInputText:" + userInputText);
 		
 			
 			
@@ -795,10 +821,9 @@ export default {
 			
 			//finds the index/position in the array of found misspelled word + finds selected dropdown text + fixes textarea text in loop
 			for(let i = 0; i < this.arrayOfMisspelledWords.length; i++){
-			    let searchWord = this.arrayOfMisspelledWords[i]; //one current misspelled word, e.g "awakecc"
-			    let result     = userInputText.indexOf(searchWord); //index/position of found misspelled in array 'userInputText'
-				r+= "got: " + result;
-				arrayIndexOfWordsToFix.push(result);  //DON"T need this, as arrayIndexOfWordsToFix == arrayOfMisspelledWords
+			    let searchWord  = this.arrayOfMisspelledWords[i]; //one current misspelled word, e.g "awakecc"
+			    let indexResult = userInputText.indexOf(searchWord); //index/position of found misspelled in array 'userInputText'
+				r+= "got: " + indexResult + " " ;
 				
 				
 				//finds selected dropdown text (corrected variant) for this current [i] <select>
@@ -813,13 +838,13 @@ export default {
 				
 				
 				//replace => after removing all html tags from text in modal window, specifically <select> text contains all <option> text as one string, i.e "awokerevokewake", here we replace it with one selected from dropdown(corrected variant). i.e "awoke"
-				arrayTextWithoutTags[result] = textSelected ;
+				arrayTextWithoutTags[indexResult] = textSelected ;
 				
 				
 				
-				//fix text, replace an element in array userInputText having index {result} with selected text (selected in dropdown in modal window)
+				//fix/correct text, replace an element in array {userInputText} having index {indexResult} with selected text (selected in dropdown in modal window)
 				 //let fixedWordIndex = arrayTextWithoutTags   userInputText.indexOf(this.arrayOfMisspelledWords[i]);
-			    userInputText[result] = textSelected ; // arrayTextWithoutTags[this.arrayOfMisspelledWords[i] + 1 ]; //" screw "; //this.arrayOfMisspelledWords[i];
+			    userInputText[indexResult] = textSelected ; // arrayTextWithoutTags[this.arrayOfMisspelledWords[i] + 1 ]; //" screw "; //this.arrayOfMisspelledWords[i];
 			}
 			
 			alert(r);
@@ -871,6 +896,7 @@ a              {color: #42b983;}
 .red-bg        {background-color:red;}
 .footer        {margin-top: 26em;}
 .buttons-set   {margin-top:3em;}
+.misspelled    {margin-bottom: 0.2em;}
 
 /*  mobile */
 @media screen and (max-width: 460px) {   

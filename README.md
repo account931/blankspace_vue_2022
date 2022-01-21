@@ -2,8 +2,17 @@
 
 > 99% the same as Cleansed version (Cleansed version contains less comments)
 
-> Text editing tool on Vue Framework. Additionally uses Typo-JS Library for spell check (https://github.com/cfinke/Typo.js) + Element-UI Library.
-> 
+> Text editing tool on Vue Framework. Additionally uses Typo-JS Library for spell check (https://github.com/cfinke/Typo.js) + Element-UI Library (FALSE).
+> check
+
+
+## Blankspace remover tool on Vue Framework.
+
+- <p> The application checks text for commom punctuantion errors; it performs a check, finds, highlights and fixes all double blankspaces, blankspace + comma, blankspace + full stop. </p>
+- <p> Additionally, it fixes consecutive duplicates, double commas, double dots, cases when word is preceeded by comma without no space and more, see full list below.</p>
+- <p> Ready build script can be found at /dist </p>
+- <p> Hot reload is availabe at http://localhost:8080/#/  on CLI -> npm run dev </p>
+
 
 ##  How to use Typo-js Library: 
 - <p> Use `npm i typo-js` to install .</p>
@@ -13,17 +22,6 @@
 
 
 
-
-
-## Blankspace remover tool on Vue Framework.
-
-- <p> The application checks text for commom punctuantion errors; it performs a check, finds, highlights and fixes all double blankspaces, blankspace + comma, blankspace + full stop. </p>
- 
-- <p> Additionally, it fixes consecutive duplicates, double commas, double dots, cases when word is preceeded by comma without no space and more, see full list below.</p>
-
-- <p> Ready build script can be found at /dist </p>
-
-- <p> Hot reload is availabe at http://localhost:8080/#/  on CLI -> npm run dev </p>
 
 ## Brief overview of the application
 
@@ -47,6 +45,12 @@
 
 ![Screenshot](screenshots/6.png)
 ![Screenshot](screenshots/7.png)
+
+## Checking for misspelled words by Typo-JS Library
+![Screenshot](screenshots/8.png)
+![Screenshot](screenshots/9.png)
+![Screenshot](screenshots/10.png)
+![Screenshot](screenshots/11.png)
 
 ## Build Setup
 
