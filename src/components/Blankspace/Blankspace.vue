@@ -689,7 +689,7 @@ export default {
 						//create checkbox/select/option with misspelled suggestions
 						let checkBox = "<select v-on:change='onSelectOption(e)'  class='suggests'> <option value='" + currWord + "' selected>" + currWord + "</option>"; //onchange='onSelectOption(this.value)'   @change='onSelectOption($event)' 
 						for(let i =  0; i < array_of_suggestions.length; i++){
-						    checkBox+= "<option  value='" + array_of_suggestions[i] + "'>" + array_of_suggestions[i] + "</option>";
+						    checkBox+= "<option value='" + array_of_suggestions[i] + "'>" + array_of_suggestions[i] + "</option>";
 						}
 						checkBox+= "</select>";
 						
@@ -755,45 +755,84 @@ export default {
 		   alert(9);
 		},
 		
-		//when user clicks "Fix changes" in modal window with options dropdowns
+		
+		
+		
+		
+		
+		
+		//when user clicks "Fix changes" in modal window with options dropdowns, we finds the index/position in the array of found misspelled word + finds selected dropdown text + fixes textarea text in loop
 		fixModalChanges(){
 		    alert('fixing now');
-			let arrayIndexOfWordsToFix = [];
+			let arrayIndexOfWordsToFix = []; //DON"T need this, as arrayIndexOfWordsToFix == arrayOfMisspelledWords
 			let r = "";  
 			//console.log(this.arrayOfMisspelledWords);
 			console.log("this.typoJSSpellCheck_full: " + this.typoJSSpellCheck_full);
 			
+			
+			
+	
+			
+			
+			
 			let textWithoutTags = this.typoJSSpellCheck_full.replace(/<[^>]*>?/gm, ''); //remove all html tags from text in modal window 
 			console.log(textWithoutTags);
 			
-			let n = textWithoutTags.replace( /\s\s+/g, ' ' );     /* remove double spaces*/
+			let n = textWithoutTags.replace( /\s\s+/g, ' ' );     /* remove all double spaces in text*/
+			n =  n.trim(); // stripped of whitespace characters from beginning and end of a string
 			
-			let arrayTextWithoutTags = n.split(' ');  //.split('\n');  //text to array
+			let arrayTextWithoutTags = n.split(' ');  //.split('\n');  //convert text to array
 			console.log("arrayTextWithoutTags:" + arrayTextWithoutTags);
 			
-			let userInputText = this.userInput.split(' ');  //.split('\n')
+			
+			//gets the copy textarea input for further manipulation without affecting textarea input
+			let userInputText = this.userInput.split(' ');  //.split('\n')  //textarea input
+			
+		
 			
 			
-			//finds the array index/position of found misspelled
+			
+			
+			//finds the index/position in the array of found misspelled word + finds selected dropdown text + fixes textarea text in loop
 			for(let i = 0; i < this.arrayOfMisspelledWords.length; i++){
-			    let searchWord = this.arrayOfMisspelledWords[i]; //one current misspelled word
-			    let result = userInputText.indexOf(searchWord); //array index/position of found misspelled
+			    let searchWord = this.arrayOfMisspelledWords[i]; //one current misspelled word, e.g "awakecc"
+			    let result     = userInputText.indexOf(searchWord); //index/position of found misspelled in array 'userInputText'
 				r+= "got: " + result;
-				arrayIndexOfWordsToFix.push(result);
-			}
-			alert(r);
-			
-			//fixes text
-			for(let i = 0; i < arrayIndexOfWordsToFix.length; i++){
-			    //let fixedWordIndex = arrayTextWithoutTags   userInputText.indexOf(this.arrayOfMisspelledWords[i]);
+				arrayIndexOfWordsToFix.push(result);  //DON"T need this, as arrayIndexOfWordsToFix == arrayOfMisspelledWords
 				
-			    userInputText[arrayIndexOfWordsToFix[i]] =  arrayTextWithoutTags[arrayIndexOfWordsToFix[i] + 1 ]; //" screw "; //this.arrayOfMisspelledWords[i];
+				
+				//finds selected dropdown text (corrected variant) for this current [i] <select>
+				let selects     = document.getElementsByTagName('select');//gets all <select> array
+			    let e           = selects[i];                         //gets the currect <select>
+                let textSelected = e.options[e.selectedIndex].text;   //get selected text of this currect <select>, e.g "awoke"
+			    //let value = e.options[e.selectedIndex].value;  //gets value
+			    console.log("fix: " + textSelected );
+				// end  finds selected (corrected variant) for this current [i] <select>
+				
+				
+				
+				
+				//replace => after removing all html tags from text in modal window, specifically <select> text contains all <option> text as one string, i.e "awokerevokewake", here we replace it with one selected from dropdown(corrected variant). i.e "awoke"
+				arrayTextWithoutTags[result] = textSelected ;
+				
+				
+				
+				//fix text, replace an element in array userInputText having index {result} with selected text (selected in dropdown in modal window)
+				 //let fixedWordIndex = arrayTextWithoutTags   userInputText.indexOf(this.arrayOfMisspelledWords[i]);
+			    userInputText[result] = textSelected ; // arrayTextWithoutTags[this.arrayOfMisspelledWords[i] + 1 ]; //" screw "; //this.arrayOfMisspelledWords[i];
 			}
 			
-			let b = userInputText.join(' ');
-			this.userInput = b;
+			alert(r);
+			console.log("arrayTextWithoutTags after :" + arrayTextWithoutTags);
 			
+	
 			
+			//replace texarea user input with fixed/corrected text
+			let b = userInputText.join(' '); // convert array to string
+			this.userInput = b;  //assign fixed/corrected text to {this.userInput}
+			
+			//Clears the string with errors found (which appears above the textarea). E.g "Found misspelled: evfoke" replace with "Spelling fixed successfully"
+			this.typoJSSpellCheck_cut = 'Spelling fixed successfully';
 		},
 		
     }		
