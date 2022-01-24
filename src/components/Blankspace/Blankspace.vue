@@ -11,8 +11,9 @@
             <div class="wrapper grey">
     		    <div class="container">
 
- 
- 
+
+      
+					
  
                     <!--------- Show misspelled words by Typo-JS ---------------->
                     <div v-html="this.typoJSSpellCheck_cut" class="misspelled"></div>
@@ -90,7 +91,7 @@
 
                     <!------------------------------------------ INSTRUCTIONS SECTION ------------------------------->
                     <!--------- Draw the Instructions from sub-component './sub_components/instructions.vue' ------------> 
-			        <draw-instrcutions-field :cssVisibilityFlag ="this.instructionShowFlag"> </draw-instrcutions-field>   <!-- Passing props -->
+			        <draw-instrcutions-field :cssVisibilityFlag ="this.instructionShowFlag"> </draw-instrcutions-field>   <!-- Passing props :cssVisibilityFlag-->
                     <!----------------------------------------- END INSTRUCTIONS SECTION---------------------->
 
 
@@ -163,7 +164,7 @@
 	
 	
 	
-	    <!-- Modal window contains Typo-JS highlighted spell errors in text -->
+	    <!------------------------ Modal window contains Typo-JS highlighted spell errors (dropdowns)in text ---------------------------->
         <div id="myModal" class="modal fade" role="dialog">
             <div class="modal-dialog">
 
@@ -181,13 +182,23 @@
 						
                     </div>
                     <div class="modal-footer">
-					   <button v-on:click="fixModalChanges" type="button" class="btn btn-default" data-dismiss="modal" >Fix changes</button>
+					   <button v-on:click="fix_MisspelledWords_In_ModalWindow" type="button" class="btn btn-default" data-dismiss="modal" >Fix changes</button>
                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                     </div>
                 </div>
             </div>
         </div>
-        <!-- End Modal window contains Typo-JS highlighted spell errors in text -->
+        <!----------------------------- Modal window contains Typo-JS highlighted spell errors (dropdowns)in text ------------------------------->
+		
+		
+		
+		
+	    <!--------- Loader (for ajax, hidden by default). NOT WORKING, moved to app.vue ----------------->
+        <div class="loader-x">
+			<!-- <img src="assets/loader-black.gif" alt="a"> -->
+			<!-- <img :src="./assets-img/loader-black.gif" alt="a"> -->
+        </div>
+        <!--------- Loader (for ajax, hidden by default)  ----------------->	
 		
 		
 		
@@ -484,7 +495,7 @@ export default {
 		
 		/*
         |--------------------------------------------------------------------------
-        | Function to highlight Errors in text
+        | Function to highlight Errors in text (i.e double spaces, space+comma, etc)
         |--------------------------------------------------------------------------
         |
         |
@@ -529,18 +540,18 @@ export default {
 		
         /*
         |--------------------------------------------------------------------------
-        | If user clicks "Clear"
+        | If user clicks "Clear" button
         |--------------------------------------------------------------------------
         |
         |
         */		
 		clear(){
-		    this.userInput           = "";
-			this.fixedUserInput      = "";
-			this.textAfterCorrection = "";
-			this.instructionShowFlag = false;
-			this.resultsShowFlag     = false;
-			this.typoJSSpellCheck_cut           = "";  //Typo-js text
+		    this.userInput            = "";
+			this.fixedUserInput       = "";
+			this.textAfterCorrection  = "";
+			this.instructionShowFlag  = false;
+			this.resultsShowFlag      = false;
+			this.typoJSSpellCheck_cut = "";  //Typo-js text
         },
         
 		//function to show/hide instructions
@@ -606,12 +617,24 @@ export default {
 		
 		/*
         |--------------------------------------------------------------------------
-        | Typo JS functions, works on btn Click, finds misspelled words, display them above the textarea and prompts user to open modal window where he can fix the errors
+        | Typo JS core functionality is here, works on btn "Typo Spell Check" Click, Check the textarea input by Typo-js and suggests correct variants in dropdowns
+		| On click finds misspelled words, form/create the text with misspelled suggestions dropdowns (highlited with red) and manually opens BS modal window where a user can fix the errors
+		| Additionally displays misspelled words above the textarea and button to open modal window (unless they fixed, then this info disappear)
+		| 
         |--------------------------------------------------------------------------
         |
         |
         */
 		run_typo_js_spellCheckLibrary(){
+		
+		    this.typoJSCheckFlag = true; //CSS flag for button text
+		    $(".loader-x").show(); //show the loader
+			
+			
+
+			
+			
+			
 		    //Typo-js Library (spell check)-------
 			
 			//if no user printed no input
@@ -622,7 +645,7 @@ export default {
 			
 			
 			//let that = this;
-			this.typoJSCheckFlag = true; //CSS flag for button text
+			
 			
 			this.arrayOfMisspelledWords = [];// reset the array of misspelled words
 			
@@ -655,7 +678,7 @@ export default {
 			
 			//Check if path to dictionary exists
 			if(this.checkFileExist(dynamicPath)){  //  "/static/dictionaries"
-			    alert("Dictionary load is OK");
+			    //alert("Dictionary load is OK");
 			} else {
 			    alert("Dictionary is not found");
 			    return false;
@@ -723,6 +746,8 @@ export default {
 						//all_text+= " <el-tooltip class='item' effect='dark' content='" + tooltipText + "' placement='top'><el-button> topfff </el-button></el-tooltip>";
 
 						spellErrorFound = true;
+						
+						$('#myModal').modal('show'); //open/show Modal window manually if errors exist
 					}
 					
 			        //console.log(is_spelled_correctly); //true/false
@@ -747,6 +772,10 @@ export default {
 			    this.$swal('No spelling error found');
 			    this.typoJSSpellCheck_cut = "No spelling errors found";
 			}
+			
+			
+			setTimeout(function(){ $(".loader-x").hide(); }, 2700);  //hide the loader with delay
+			
 		     
 		},
 		
@@ -784,12 +813,13 @@ export default {
 		/*
         |--------------------------------------------------------------------------
         | When user clicks "Fix changes" in modal window with options dropdowns, we finds the index/position in the array of found misspelled word + finds selected dropdown text + fixes textarea text in loop
-	    | Check the textarea input by Typo-js and suggests correct variants in dropdowns
+	    | 
+		| Modal window either pops up on executing{function run_typo_js_spellCheckLibrary()} or on manual clicking the button "Open to fix" (for example user ran {function run_typo_js_spellCheckLibrary()} but closes the modal without fixing the errors)
         |--------------------------------------------------------------------------
         |
         |
         */
-		fixModalChanges(){
+		fix_MisspelledWords_In_ModalWindow(){
 		    alert('fixing now');
 			let r = "";  //just for alert string
 			console.log("this.arrayOfMisspelledWords:" + this.arrayOfMisspelledWords);
@@ -810,7 +840,7 @@ export default {
 			
 			//copy textarea input to a new var for further manipulation without affecting textarea input   !!!!!!!!!!!!!!!!!!!!!!!
 			let userInputText = this.userInput; 
-			userInputText     = userInputText.replace( /\s\s+/g, ' ' );     /* remove all double spaces in text*/
+			//userInputText     = userInputText.replace( /\s\s+/g, ' ' );     /* remove all double spaces in text*/
 			userInputText     = userInputText.split(' ');  //.split('\n')  //textarea input to array
 			
 			console.log("userInputText:" + userInputText);
@@ -904,6 +934,11 @@ a              {color: #42b983;}
 	.buttons-set   {margin-top: 1em;}
 }
 
+
+
+ 
+ 
+ 
 /* ----------------  Vue animation ----- */
 
     /*--- Animation Var 1 */
