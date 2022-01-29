@@ -51,8 +51,8 @@
 					
 					<!-- Checkbox to include checking some waze specifics, i.e "Please know that, Help Center". No correction, just notifications-->
 					<div class="col-sm-3 col-xs-12">
-					    <input type="checkbox" id="support" class="checkbox-x" v-model="ifWazeSpecificsOnFlag" v-on:click="toggleWazeSpecifics">
-                        <label id="following" for="support"> {{ this.ifWazeSpecificsOnFlag ? "waze specifics on (notify only)" : "waze specifics" }} </label>
+					    <input type="checkbox" id="wspec" class="checkbox-x" v-model="ifWazeSpecificsOnFlag" v-on:click="toggleWazeSpecifics">
+                        <label id="following" for="wspec"> {{ this.ifWazeSpecificsOnFlag ? "waze specifics on (notify only)" : "waze specifics" }} </label>
 					</div>
 					
 					<!-- Checkbox to include/exclude Support footer -->
@@ -193,11 +193,11 @@
 		
 		
 		
-	    <!--------- Loader (for ajax, hidden by default). Works ----------------->
-        <div class="loader-x">
+	    <!--------- Loader ( was hidden by default for JQ, for Vue is visible, appearance is based on Vue data typoJSCheckFlag ). Works ----------------->
+        <div v-if="this.typoJSCheckFlag" class="loader-x">
 			<img :src="imageMineLoader" alt="a"/>  <!-- image path is speficied in data => imageMineLoader -->
         </div>
-        <!--------- Loader (for ajax, hidden by default)  ----------------------->	
+        <!--------- Loader ( hidden by default)  ----------------------->	
 		
 		
 		
@@ -235,7 +235,7 @@ export default {
 			showDetailedErrorsFlag : false,  //CSS to show/hide detailed list with errors
 			showHighLightErrorsFlag: false,  //CSS to show/hide highlited red text
 			copiedFlag             : false,  //CSS to change text "Copy" / "Copied"
-			typoJSCheckFlag        : false,   //CSS to change text "Typo Js Check spell" / "Checking"
+			typoJSCheckFlag        : false,   //CSS to change text "Typo Js Check spell" / "Checking" + loader appearance
 			
 			ifUnderscoreOnFlag     : false,  //checkbox flag to decide if text editing will include checking/removing underscore (_, e.g for misplaced ad pins)
 			ifSupportOnFlag        : false,  //checkbox flag to decide if edited/fixed text will contain support footer
@@ -341,7 +341,8 @@ export default {
 			this.fixedUserInput      = "";   //clear prev fixed/edited input if any
 			this.textAfterCorrection = "";   //clear prev if any
 			
-			let  arrayX2 = this.userInput.split('\n');
+			let  arrayX2 = this.userInput.split('\n'); 
+			alert(arrayX2.length);
 			
 			for(let j = 0; j < arrayX2.length; j++) {  
 
@@ -368,7 +369,7 @@ export default {
 	
 			//case if checkbox "support footer on" is ON, then include Support footer to fixed/edited text
             if(this.ifSupportOnFlag){
-				this.fixedUserInput+= "</br>Best regards,</br>Waze Support team";
+				this.fixedUserInput+= "</br>Best regards, </br> Waze Support team";
 			}      
 			
 			
@@ -631,12 +632,23 @@ export default {
         |
         */
 		run_typo_js_handler(){
+		
+		    //if no user printed no input
+			if(this.userInput == ""){
+			    this.$swal('Input is empty');
+				return false;
+			}
+			
+			
 		    this.typoJSCheckFlag = true; //CSS flag for button text
-		    $(".loader-x").show(); //show the loader
+		    //$(".loader-x").show(); //show the loader //reassigned to vue state
 			
 			let that = this;
 			setTimeout(function(){ 	that.run_typo_js_spellCheckLibrary(); }, 10);  //hide the loader with delay
 			
+			
+			
+			//DEACTIVATED BELOW--------------
 			/*
 			let that = this;
 			
@@ -645,7 +657,7 @@ export default {
 			    
 				    that.typoJSCheckFlag = true; //CSS flag for button text
 		            $(".loader-x").show(); //show the loader 
-					resolveX();  rejectMe("rejectMe was triggered");   
+					resolveX();  //rejectMe("rejectMe was triggered");   
 			})
 			.then(
 			    responseZZ => {  
@@ -681,15 +693,7 @@ export default {
 			
 
 			
-		    //Typo-js Library (spell check)-------
-			
-			//if no user printed no input
-			if(this.userInput == ""){
-			    this.$swal('Input is empty');
-				return false;
-			}
-			
-			
+		    //Typo-js Library (spell check)-------			
 			//let that = this;
 			
 			
@@ -820,7 +824,7 @@ export default {
 			}
 			
 			
-			setTimeout(function(){ $(".loader-x").fadeOut(800); }, 1000);  //hide the loader with delay
+			//setTimeout(function(){ $(".loader-x").fadeOut(800); }, 1000);  //hide the loader with delay //reassugned to vue state
 			
 		     
 		},
@@ -933,7 +937,8 @@ a              {color: #42b983;}
 
     /*--- Animation Var 1 */
     .fade-enter-active, .fade-leave-active {
-        transition: opacity 6.5s;
+        transition: opacity 0.1s;
+
     }
     .fade-enter, .fade-leave-to /* .fade-leave-active до версии 2.1.8 */ {
         opacity: 0;
@@ -958,7 +963,7 @@ a              {color: #42b983;}
 
 
 /* ---- Loader --------*/
-.loader-x  {position:absolute; top:16em; left:40em;width:99%; z-index:888; display:none;}
+.loader-x  {position:absolute; top:16em; left:0em; width:99%; z-index:888; /* display:none; */}
 .loader-x img {width:13%;}
 
 /* --- Mobile */
