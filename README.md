@@ -22,7 +22,7 @@
 - <p> To check if a word spelled correctly       =>  `let is_spelled_correctly = dictionary.check(currWord);  //return true/false ` </p>
 - <p> To get array of suggestions for misspelled => `let array_of_suggestions = dictionary.suggest(currWordPurified); `
 - <p> NB: Typo-Js provides only basic scaffolding like checking if a single word is misspelled (true/false) and geting array of suggestions for misspelled. Particular realization up to you. </p>
-- <p> Typo-Js uses Hunspell dictionary(62120 words), to add your custom word to dictionary, go to  /static/dictionaries/en_US/en_US.txt and add your custom word. To add word that can have both singular and plural add flag "/S", e.g  "wazer/S"  </p>
+- <p> Typo-Js uses Hunspell dictionary(62120 words), to add your custom word to dictionary, go to  /static/dictionaries/en_US/en_US.txt and add your custom word. To add word that can have both singular and plural add flag "/S", e.g "wazer/S". For add geo and private names add flag "/M", e.g "Dimitry/M"  </p>
 
 
 ## Brief overview of the application

@@ -1,4 +1,4 @@
-//file/external function used in Blankspace.vue. 
+//this file used in Blankspace.vue to be run as an external functions
 
 export const copyExternalFunction = {
 
@@ -11,7 +11,7 @@ export const copyExternalFunction = {
     */
 
 	
-	copyTextToClipBoard: function(that){ //(that) arg is a must, otherwise crash	
+	copyTextToClipBoard: function(that){ //arg {that} is this, arg is a must, otherwise crash	
 		
 	    that.copiedFlag  = !that.copiedFlag; //switch state to change btn text.
 

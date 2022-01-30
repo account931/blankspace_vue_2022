@@ -74,7 +74,7 @@
 
 
 
-                    <!-------------------------------------------------------START BUTTONS---------------------------------------->
+                    <!------------------------------------------------------- START BUTTONS ---------------------------------------->
 			        <div class="col-md-8 buttons-set">  
     				    <button id="splitButton"       type="button" class="btn btn-primary btn-embossed btn-lg btn-wide bt-mobile-mine"  v-on:click="proccessTextCore">  Run a check </button>
                         <button id="clearButton"       type="button" class="btn btn-danger btn-embossed btn-lg btn-wide bt-mobile-mine"   v-on:click="clear">             &nbsp;Reset&nbsp;       </button >
@@ -84,15 +84,15 @@
     		            <button type="button" class="btn btn-success btn-embossed btn-lg btn-wide bt-mobile-mine"  v-on:click="run_typo_js_handler">                      {{ this.typoJSCheckFlag      ? "Checking..."      : "Typo JS Spell Check" }} </button>
 
 					</div>
-                    <!-------------------------------------------------------START BUTTONS---------------------------------------->
+                    <!------------------------------------------------------- START BUTTONS ---------------------------------------->
 
 
 
 
-                    <!------------------------------------------ INSTRUCTIONS SECTION ------------------------------->
+                    <!------------------------------------------ INSTRUCTIONS SECTION Component ------------------------------->
                     <!--------- Draw the Instructions from sub-component './sub_components/instructions.vue' ------------> 
 			        <draw-instrcutions-field :cssVisibilityFlag ="this.instructionShowFlag"> </draw-instrcutions-field>   <!-- Passing props :cssVisibilityFlag-->
-                    <!----------------------------------------- END INSTRUCTIONS SECTION---------------------->
+                    <!----------------------------------------- END INSTRUCTIONS SECTION Component ---------------------------->
 
 
 
@@ -195,9 +195,11 @@
 		
 	    <!--------- Loader ( was hidden by default for JQ, for Vue is visible, appearance is based on Vue data typoJSCheckFlag ). Works ----------------->
         <div v-if="this.typoJSCheckFlag" class="loader-x">
-			<img :src="imageMineLoader" alt="a"/>  <!-- image path is speficied in data => imageMineLoader -->
+			<img :src="this.imageMineLoader" alt="a"/>  <!-- image path is speficied in data => imageMineLoader -->
         </div>
-        <!--------- Loader ( hidden by default)  ----------------------->	
+        <!----------------------- Loader ( hidden by default)  ------------------------------------------------------------------------------------------>	
+		
+		
 		
 		
 		
@@ -210,7 +212,9 @@ let Typo = require("typo-js/typo.js"); //Use/require "typo-js" JS Library for ch
 //import function from other external file
 import {computedAnswerFile}   from './sub_functions/scroll_function.js';  //name in {} i.e 'computedAnswerFile' must be cooherent to name in "export const computedAnswerFile" in '/sub_functions/computedAnswer.js'
 import {copyExternalFunction} from './sub_functions/copy_function.js';
-import {typoJs_spellCheck_external}  from './sub_functions/typo_js_spell_check.js'; //Typo-Js check spell check functions
+import {typoJs_spellCheck_external}  from './sub_functions/typo_js_spell_check.js'; //Typo-Js check spell check external functions
+import {clearBtnFile}  from './sub_functions/clear_btn_function.js';                //"Clear" button external functions
+
 
 //using other sub-component, in this case a component to draw the game Field
 import instructionField from './sub_components/instructions.vue';  //import file from same level folder
@@ -253,6 +257,7 @@ export default {
 			arrayOfMisspelledWords:[],         //array contains list of misspelled words (by Typo-js)
 			
 			imageMineLoader       : require('@/assets/loader-black.gif'), //image for loader
+			
         }
     },
   
@@ -260,6 +265,12 @@ export default {
 		checkText() {
 			return this.userInput;
 		},
+		
+		/*
+		myLoaderImgSrc(){
+		    return require('@/assets/loader-black.gif'); //image for loader
+		},
+		*/
 	
 			
 	},
@@ -270,8 +281,9 @@ export default {
 		//this.$store.dispatch('getCaptchaSet'); //trigger ajax function getCaptchaSet(), which is executed in Vuex store to REST Endpoint => /public/post/get_all	
 	},
 		
-	mounted(){ 
+	mounted(){     
 	},
+
 		
 		
 		
@@ -280,9 +292,9 @@ export default {
 	methods: {
 		    
         /*
-        |--------------------------------------------------------------------------
+        |---------------------------------------------------------------------------------------------------------------------
         | If image url is invalid or broken or image physically not available in folder, then use 'images/image-corrupted.jpg"
-        |--------------------------------------------------------------------------
+        |---------------------------------------------------------------------------------------------------------------------
         |
         |
         */
@@ -293,9 +305,9 @@ export default {
 		
 		
         /*
-        |--------------------------------------------------------------------------
-        | If user clicks core button to process the text
-        |--------------------------------------------------------------------------
+        |------------------------------------------------------------------------------------------------------------------------------
+        | If user clicks core button to process the text, fixes all double blankspaces, blankspace + comma, blankspace + full stop, etc
+        |------------------------------------------------------------------------------------------------------------------------------
         |
         |
         */		
@@ -411,9 +423,9 @@ export default {
 
 
         /*
-        |--------------------------------------------------------------------------
-        | Count all errors found in text (double space etc)
-        |--------------------------------------------------------------------------
+        |----------------------------------------------------------------------------------
+        | Count all errors found in text (double space etc). Used in proccessTextCore()
+        |----------------------------------------------------------------------------------
         |
         |
         */		
@@ -498,10 +510,9 @@ export default {
 		
 		
 		/*
-        |--------------------------------------------------------------------------
-        | Function to highlight Errors in text (i.e double spaces, space+comma, etc)
-        |--------------------------------------------------------------------------
-        |
+        |---------------------------------------------------------------------------------------------------------
+        | Function to highlight Errors in text (i.e double spaces, space+comma, etc). Used in proccessTextCore()
+        |---------------------------------------------------------------------------------------------------------
         |
         */
 		highlightErrors(){
@@ -550,15 +561,17 @@ export default {
         |
         */		
 		clear(){
-		    this.userInput            = "";
-			this.fixedUserInput       = "";
-			this.textAfterCorrection  = "";
-			this.instructionShowFlag  = false;
-			this.resultsShowFlag      = false;
-			this.typoJSSpellCheck_cut = "";  //Typo-js text
+		    clearBtnFile.clearAll(this);  //Call the function from external file (/sub_functions/clear_btn_function.js)
         },
         
-		//function to show/hide instructions
+		
+		
+	
+	   /*
+        |--------------------------------------------------------------------------
+        | Function to show/hide instructions
+        |--------------------------------------------------------------------------
+        */
         setInstructions(){
 		    this.instructionShowFlag = !this.instructionShowFlag; //switch state to change class.
 			const myTimeout = setTimeout(function(){ 
@@ -567,12 +580,24 @@ export default {
 
         },
 		
-		//function set example
+		
+		
+		/*
+        |--------------------------------------------------------------------------
+        | Function set example
+        |--------------------------------------------------------------------------
+        */
 		setExample(){
 		    this.userInput = "Lilly awoke  in an evening dress and opera cloak. \n In her hand were five playing cards. \n They were were, the queen  of spades, four of clubs, \n nine of clubs , three of hearts, nine of hearts.";
 		},
 		
-		//function to switch CSS to show/hide detailed error list
+		
+		
+		/*
+        |--------------------------------------------------------------------------
+        | Function to switch CSS to show/hide detailed error list
+        |--------------------------------------------------------------------------
+        */
 		showDetailedErrors(){
 		    this.showDetailedErrorsFlag  = !this.showDetailedErrorsFlag; //switch state to change class.
 			this.showHighLightErrorsFlag = false; //always hide HighLighted Errors text
@@ -582,7 +607,12 @@ export default {
 		},
 		
 		  
-		//function to switch CSS to show/hide HighLighted Errors text
+		
+	    /*
+        |-----------------------------------------------------------------------------------
+        | Function to switch CSS to show/hide HighLighted Errors text
+        |-----------------------------------------------------------------------------------
+        */
 		showHighLightedErrors(){
 		    this.showHighLightErrorsFlag = !this.showHighLightErrorsFlag; //switch state to change class.
 			this.showDetailedErrorsFlag  = false; //always hide detailed error list 
@@ -592,14 +622,24 @@ export default {
 
         },
 		
-		// function to copy text via external function
+	
+		/*
+        |-----------------------------------------------------------------------------------
+        | function to copy text via external function
+        |-----------------------------------------------------------------------------------
+        */
 		copyTextFunction(){ 
 		    copyExternalFunction.copyTextToClipBoard(this); //calling external file function, (this) arg is a must, otherwise crash	
 		},
 		
 		
 		
-		//on checkbox change enable/disable checking undescored (used for misplaced ad pins)
+		
+		/*
+        |-----------------------------------------------------------------------------------
+        | on checkbox change enable/disable checking undescored (used for misplaced ad pins)
+        |-----------------------------------------------------------------------------------
+        */
 		toogleMisplacedAdPinsOn(){
 		    this.ifUnderscoreOnFlag  = !this.ifUnderscoreOnFlag; //switch state to change text and enable/disable checking misplaced Ad Pins.
 		},
@@ -622,12 +662,10 @@ export default {
 		
 			
 		/*
-        |--------------------------------------------------------------------------
-        |Function-handler Fix to tun run_typo_js_spellCheckLibrary(). On click, it changes data value, shows loader and run run_typo_js_spellCheckLibrary(). 
-		|If use change data value/show loader in run_typo_js_spellCheckLibrary() it blocks running loader untill the function run_typo_js_spellCheckLibrary() is fifinshed
-		| 
-		| 
-        |--------------------------------------------------------------------------
+        |-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+        | Function-handler Fix to tun run_typo_js_spellCheckLibrary(). On click, it changes data value, shows loader and run run_typo_js_spellCheckLibrary(). 
+		| If use change data value/show loader in run_typo_js_spellCheckLibrary() it blocks running loader untill the function run_typo_js_spellCheckLibrary() is fifinshed
+        |------------------------------------------------------------------------------------------------------------------------------------------------------------------
         |
         |
         */
@@ -640,11 +678,11 @@ export default {
 			}
 			
 			
-		    this.typoJSCheckFlag = true; //CSS flag for button text
+		    this.typoJSCheckFlag = true; //CSS flag for button text and Loader appearance
 		    //$(".loader-x").show(); //show the loader //reassigned to vue state
 			
 			let that = this;
-			setTimeout(function(){ 	that.run_typo_js_spellCheckLibrary(); }, 10);  //hide the loader with delay
+			setTimeout(function(){ 	that.run_typo_js_spellCheckLibrary(); }, 90);  //hide the loader with delay //delay is a lame Fix for correct loader appearance(otherwise it appears only when {run_typo_js_spellCheckLibrary()} is finished)
 			
 			
 			
@@ -654,21 +692,18 @@ export default {
 			
 			//Promise -> scroll only after the Div (".resultFinal") is in DOM, otherwise an error, tries to scroll to ".resultFinal", whule it is not in DOM
 			new Promise(function(resolveX, rejectMe) {
-			    
-				    that.typoJSCheckFlag = true; //CSS flag for button text
-		            $(".loader-x").show(); //show the loader 
-					resolveX();  //rejectMe("rejectMe was triggered");   
+				that.typoJSCheckFlag = true; //CSS flag for button text
+		        //$(".loader-x").show(); //show the loader //reassigned to Vue data typoJSCheckFlag
+			    resolveX();  //rejectMe("rejectMe was triggered");   
 			})
 			.then(
 			    responseZZ => {  
-			       
-				   
 				   setTimeout(function(){ that.run_typo_js_spellCheckLibrary(); }, 10);  //hide the loader with delay //Mega Lame fix, without delay does not work correctly (loader appears only after run_typo_js_spellCheckLibrary() is finished)
 			    }
 			) 
-             //catch
-             .catch(errorX => {  //this name {errorX} must be the same as in {alert("Rejected: " + errorX))}
-					this.$swal('Error happened  ' + errorX);
+            //catch errors
+            .catch(errorX => {  //this name {errorX} must be the same as in {alert("Rejected: " + errorX))}
+			    this.$swal('Error happened  ' + errorX);
             });
 			//End Promise ->
 			*/
@@ -678,18 +713,18 @@ export default {
 		
 		
 		/*
-        |--------------------------------------------------------------------------
+        |-----------------------------------------------------------------------------------------------------------------------------------------
         | Typo JS core functionality is here, works on btn "Typo Spell Check" Click, Check the textarea input by Typo-js and suggests correct variants in dropdowns
 		| On click finds misspelled words, form/create the text with misspelled suggestions dropdowns (highlited with red) and manually opens BS modal window where a user can fix the errors
 		| Additionally displays misspelled words above the textarea and button to open modal window (unless they fixed, then this info disappear)
 		| 
-        |--------------------------------------------------------------------------
+        |-----------------------------------------------------------------------------------------------------------------------------------------
         |
         |
         */
 		run_typo_js_spellCheckLibrary(){
 		    //this.typoJSCheckFlag = true; //CSS flag for button text
-		    //$(".loader-x").show(); //show the loader
+		    //$(".loader-x").show(); //show the loader //reassigned to Vue data typoJSCheckFlag
 			
 
 			
@@ -735,10 +770,6 @@ export default {
 			}
 			
 			
-			
-			
-          
-	
 				
 		   
 			//Check the textarea input by Typo-js
@@ -806,9 +837,9 @@ export default {
 				}
 			}
 			
-			 //CSS flag to change button text
+			 //CSS flag to change button text and hide loader
 			let that = this;
-			setTimeout(function(){ that.typoJSCheckFlag = false; }, 2700);
+			setTimeout(function(){ that.typoJSCheckFlag = false; }, 1100); //some delay for loader UI
 			
 			this.typoJSSpellCheck_cut  = foundMisspelledWords;
 			this.typoJSSpellCheck_full = all_text;
@@ -824,7 +855,7 @@ export default {
 			}
 			
 			
-			//setTimeout(function(){ $(".loader-x").fadeOut(800); }, 1000);  //hide the loader with delay //reassugned to vue state
+			//setTimeout(function(){ $(".loader-x").fadeOut(800); }, 1000);  //hide the loader with delay //reassigned to vue data typoJSCheckFlag
 			
 		     
 		},
@@ -836,11 +867,10 @@ export default {
 		
 		
 		/*
-        |--------------------------------------------------------------------------
+        |----------------------------------------------------------------------------------------
 	    | Function to check if path exists, used to check before load the Dictionary for Typo-js
 		|
-        |--------------------------------------------------------------------------
-        |
+        |---------------------------------------------------------------------------------------
         |
         */
 		checkFileExist(urlToFile) {
@@ -870,18 +900,15 @@ export default {
 		
 		
 		/*
-        |--------------------------------------------------------------------------
+        |-------------------------------------------------------------------------------------------------------------------
         | When user clicks "Fix changes" in modal window with options dropdowns, we finds the index/position in the array of found misspelled word + finds selected dropdown text + fixes textarea text in loop
-	    | 
 		| Modal window either pops up on executing{function run_typo_js_spellCheckLibrary()} or on manual clicking the button "Open to fix" (for example user ran {function run_typo_js_spellCheckLibrary()} but closes the modal without fixing the errors)
-        |--------------------------------------------------------------------------
+        |-------------------------------------------------------------------------------------------------------------------
         |
         |
         */
 		fix_MisspelledWords_In_ModalWindow(){
-		
-		    typoJs_spellCheck_external.fix_MisspelledWords_In_ModalWindow(this); //calling external functions from './sub_functions/typo_js_spell_check.js'
-			
+		    typoJs_spellCheck_external.fix_MisspelledWords_In_ModalWindow_External(this); //calling external functions from './sub_functions/typo_js_spell_check.js'
 		},
 		
     }		

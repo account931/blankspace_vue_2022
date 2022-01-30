@@ -1,4 +1,4 @@
-//file is used in Blankspace.vue to run external functions. Contains logic for checking textarea input with Typo-JS library. 
+//this file used in Blankspace.vue to be run as an external functions. Contains logic for checking textarea input with Typo-JS library. 
 //Include  functions: 
 // 1st {run_typo_js_spellCheckLibrary()}     =>  finds misspelled words, form/create the text with misspelled suggestions dropdowns (highlited with red) and manually opens BS modal window where a user can fix the errors
 // 2nd {fix_MisspelledWords_In_ModalWindow()} => When user clicks "Fix changes" in modal window with options dropdowns, we finds the index/position in the array of found misspelled word + finds selected dropdown text + fixes textarea text in loop
@@ -10,7 +10,7 @@ export const typoJs_spellCheck_external = {
 
     /*
     |--------------------------------------------------------------------------
-    |Typo JS core functionality is here, works on btn "Typo Spell Check" Click, Check the textarea input by Typo-js and suggests correct variants in dropdowns
+    | Typo JS core functionality is here, works on btn "Typo Spell Check" Click, Check the textarea input by Typo-js and suggests correct variants in dropdowns
 	| On click finds misspelled words, form/create the text with misspelled suggestions dropdowns (highlited with red) and manually opens BS modal window where a user can fix the errors
 	| Additionally displays misspelled words above the textarea and button to open modal window (unless they fixed, then this info disappear)
 	| 
@@ -29,6 +29,11 @@ export const typoJs_spellCheck_external = {
 	
 	
 	
+	
+	
+	
+	
+	
     /*
     |--------------------------------------------------------------------------
     | When user clicks "Fix changes" in modal window with options dropdowns, we finds the index/position in the array of found misspelled word + finds selected dropdown text + fixes textarea text in loop
@@ -39,7 +44,7 @@ export const typoJs_spellCheck_external = {
     |
     */
 
-	fix_MisspelledWords_In_ModalWindow: function(that){ 
+	fix_MisspelledWords_In_ModalWindow_External: function(that){  //arg {that} is this
 			    
         //alert('fixing now');
 		let r = "";  //just for alert string
