@@ -37,9 +37,9 @@ export const typoJs_spellCheck_external = {
     /*
     |--------------------------------------------------------------------------
     | When user clicks "Fix changes" in modal window with options dropdowns, we finds the index/position in the array of found misspelled word + finds selected dropdown text + fixes textarea text in loop
-	| 
     | Modal window either pops up on executing{function run_typo_js_spellCheckLibrary()} or on manual clicking the button "Open to fix" (for example user ran {function run_typo_js_spellCheckLibrary()} but closes the modal without fixing the errors)
-    |--------------------------------------------------------------------------
+    | @param that is passed {this} context (from /Blankspace/Blankspace.vue)
+	|--------------------------------------------------------------------------
     |
     |
     */

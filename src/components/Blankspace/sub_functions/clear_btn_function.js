@@ -4,7 +4,8 @@ export const clearBtnFile = {
 
     /*
     |--------------------------------------------------------------------------
-    | If user clicks "Clear" button
+    | If user clicks "Clear" button, clear the data
+	| @param that is passed {this} context (from /Blankspace/Blankspace.vue)
     |--------------------------------------------------------------------------
     |
     |

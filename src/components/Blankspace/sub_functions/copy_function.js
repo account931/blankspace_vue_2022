@@ -4,7 +4,8 @@ export const copyExternalFunction = {
 
     /*
     |--------------------------------------------------------------------------
-    | //Copy Text To ClipBoard
+    | Copy Text To ClipBoard
+	| @param that is passed {this} context (from /Blankspace/Blankspace.vue)
     |--------------------------------------------------------------------------
     |
     |

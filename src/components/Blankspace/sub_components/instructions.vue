@@ -8,7 +8,7 @@
                       
             <!--<a href='#' target="_blank" style="font-size:18px; "/>View Video Instructions</a>-->
 
-            </br>How to remove errors in text:
+            </br>How to remove punctuantion errors in the text:
             </br>1.Paste the text you'd like to fix.
             </br>2.Click "Run a check" button and get corrected text.
             </br>3.Click "Copy" button to copy corrected text.
@@ -18,6 +18,7 @@
             </br>
             </br>This application checks text for commom punctuantion errors; performs a check, finds, highlights and fixes all double blankspaces, blankspace + comma, blankspace + full stop.
             </br></br>Additionally, it fixes consecutive duplicates, double commas, double dots, cases when word is preceeded by comma without no space and more, see full list below.
+			</br> Spell check is also available on request (Typo-Js library)
             </br>List:
            
             </br>1.Double blankspaces.
