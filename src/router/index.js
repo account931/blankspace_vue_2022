@@ -20,6 +20,13 @@ export default new Router({
       path: '/example',
       name: 'HelloWorld',
       component: HelloWorld
-    }
+    },
+	
+	//case if not found 404
+	{ path: "*", 
+	  component: { template: '<p> </br> Page Not Found </p>'}, //PageNotFound 
+	},
+	
+	
   ]
 })

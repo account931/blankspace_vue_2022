@@ -208,18 +208,21 @@
 </template>
 
 <script>
+//Import Typo-JS library
 let Typo = require("typo-js/typo.js"); //Use/require "typo-js" JS Library for check spell //https://github.com/cfinke/Typo.js
 
-//import function from other external file
+//Import function from other external file
 import {computedAnswerFile}               from './sub_functions/scroll_function.js';  //name in {} i.e 'computedAnswerFile' must be cooherent to name in "export const computedAnswerFile" in '/sub_functions/computedAnswer.js'
 import {copyExternalFunction}             from './sub_functions/copy_function.js';
 import {typoJs_spellCheck_external}       from './sub_functions/typo_js_spell_check.js';             //Typo-Js check spell check external functions
 import {clearBtnFile}                     from './sub_functions/clear_btn_function.js';              //"Clear" button external functions
 import {core_doubleSpace_remover_checker} from './sub_functions/core_doubleSpace_remover_check.js';  //Core double space remove functions external functions 
+import {sweet_alert_externalFile}         from './sub_functions/sweet_alert_function.js';            //Sweet Alert 2 external functions
+import {checkPathFile}                    from './sub_functions/check_if_path_exist_function.js';    //checkFileExist external functions
 
-//using other sub-component, in this case a component to draw the game Field
+//Import sub-component, using other sub-component, in this case a component to draw instructions, footer, etc                        
 import instructionField from './sub_components/instructions.vue';  //import file from same level folder
-import footerField from './sub_components/footer.vue';             //import file from same level folder
+import footerField      from './sub_components/footer.vue';         //import file from same level folder
 
 export default {
     name: 'Blankspace',
@@ -236,19 +239,19 @@ export default {
 			userInput              : '',     //textarea input
 			fixedUserInput         : '',     //fixed/corrected textarea input
 			instructionShowFlag    : false,  //CSS flag to show/hide instructions
-			resultsShowFlag        : false,  //CSS to show/hide core results
-			showDetailedErrorsFlag : false,  //CSS to show/hide detailed list with errors
-			showHighLightErrorsFlag: false,  //CSS to show/hide highlited red text
+			resultsShowFlag        : false,  //CSS to show/hide div with core results (double spaces, double dots, etc removed)
+			showDetailedErrorsFlag : false,  //CSS to show/hide detailed list with errors (double spaces, double dots section)
+			showHighLightErrorsFlag: false,  //CSS to show/hide highlited red text        (double spaces, double dots section)
 			copiedFlag             : false,  //CSS to change text "Copy" / "Copied"
-			typoJSCheckFlag        : false,   //CSS to change text "Typo Js Check spell" / "Checking" + loader appearance
+			typoJSCheckFlag        : false,   //CSS to change text "Typo Js Check spell"/"Checking" + loader appearance
 			
 			ifUnderscoreOnFlag     : false,  //checkbox flag to decide if text editing will include checking/removing underscore (_, e.g for misplaced ad pins)
 			ifSupportOnFlag        : false,  //checkbox flag to decide if edited/fixed text will contain support footer
 			ifWazeSpecificsOnFlag  : false,  //checkbox flag to decide if edited/fixed text will contain checking for some waze specifics, i.e "Please know that, Help Center"
 			
-			foundErrorsCount       : null,   //amount of errors found (int)
-			textAfterCorrection    :'',      //"No correction was performed" vs "Text after correction"
-			detailedListOfErrors   :'',      //detailed list of errors found
+			foundErrorsCount       : null,   //amount of errors found (int) (used in double spaces, double dots section)
+			textAfterCorrection    :'',      //"No correction was performed" vs "Text after correction" (used in double spaces, double dots section)
+			detailedListOfErrors   :'',      //detailed list of errors found (used in double spaces, double dots section)
 			textHighlightedErrors  :'', 
 			
 			//regExp
@@ -458,7 +461,7 @@ export default {
 			
 		/*
         |-----------------------------------------------------------------------------------------------------------------------------------------------------------------
-        | Function-handler Fix to tun run_typo_js_spellCheckLibrary(). On click, it changes data value, shows loader and run run_typo_js_spellCheckLibrary(). 
+        | Function-handler Fix to fire run_typo_js_spellCheckLibrary(). On click, it changes data value, shows loader and run run_typo_js_spellCheckLibrary(). 
 		| If use change data value/show loader in run_typo_js_spellCheckLibrary() it blocks running loader untill the function run_typo_js_spellCheckLibrary() is fifinshed
         |------------------------------------------------------------------------------------------------------------------------------------------------------------------
         |
@@ -483,7 +486,7 @@ export default {
 			
 			    setTimeout(function(){ 	
 			        that.run_typo_js_spellCheckLibrary();  //delay is a lame Fix for correct loader appearance(otherwise it appears only when {run_typo_js_spellCheckLibrary()} is finished)
-			    }, 60); 
+			    }, 100); 
 			
 			});
 			
@@ -513,145 +516,17 @@ export default {
 		
 		/*
         |-----------------------------------------------------------------------------------------------------------------------------------------
-        | Typo JS core functionality is here, works on btn "Typo Spell Check" Click, Check the textarea input by Typo-js and suggests correct variants in dropdowns
+        | Typo JS core functionality is here, works on btn "Typo Spell Check" Click, Check the textarea input spell errors by Typo-js and suggests correct variants in dropdowns
 		| On click finds misspelled words, form/create the text with misspelled suggestions dropdowns (highlited with red) and manually opens BS modal window where a user can fix the errors
 		| Additionally displays misspelled words above the textarea and button to open modal window (unless they fixed, then this info disappear)
 		| 
         |-----------------------------------------------------------------------------------------------------------------------------------------
         |
         |
-        */
+        */  
 		run_typo_js_spellCheckLibrary(){
-	
-            
-		    //Typo-js Library (spell check)-------			
-			//let that = this;
-			
-			this.arrayOfMisspelledWords = [];// reset the array of misspelled words
-			
-			
-			let foundMisspelledWords  = "Found misspelled: ";  //list of misspelled words 
-			let all_text              = "";                    // contains whole textarea input with highlighted misspelled words (by Typo-js)
-			let spellErrorFound       = false;
-			
-			//decide which url to use, switching ajax url when running on  http://localhost:8080/ (hot reload) or OpenServer Hosting
-			let dynamicPath; //path for 
-	        let localhost8080     = "/static/dictionaries";
-            let localhostOpServer = "../static/dictionaries"; 
-			let realServerProdURL = "static/dictionaries";
-	     
-		  
-	        //if finds "/localhost:8080/" in current url. Url for case when app is runing in (npm run dev) hot reload
-	        if(window.location.href.match(/localhost:8080/)){   
-		        dynamicPath = localhost8080 ; 
-			}
-			
-	        //if finds "/localhost/" in current url. Url for case when app is runing in OpenServer 
-	        if(window.location.href.match(/localhost/)){    
-		       dynamicPath = localhostOpServer ;
-	        } else {
-			    //case when app is runing in real web-host. Library must be in the same root with index.html
-			    dynamicPath = realServerProdURL; 
-			}
-			
-			//alert("Path is " + dynamicPath);
-			
-			//Check if path to dictionary exists
-			if(this.checkFileExist(dynamicPath)){  //  "/static/dictionaries"
-			    //alert("Dictionary load is OK");
-			} else {
-			    alert("Dictionary is not found");
-			    return false;
-			}
-			
-			
-				
-		   
-			//Check the textarea input by Typo-js
-			let dictionary = new Typo("en_US", false, false, { dictionaryPath: dynamicPath });     //{ dictionaryPath: "/static/dictionaries" }
-			
-            let  arrayX2 = this.userInput.split('\n'); //split textarea input (string) to array by ('\n'). E.g "Lilly awoke  in an evening dress and opera cloak."
-			
-			for(let i = 0; i < arrayX2.length; i++) {  
-			    
-				let  arrayX3 =  arrayX2[i].split(' ');  //split every line by separate words. E.g "opera"
-			    for(let j = 0; j < arrayX3.length; j++) {
-				
-				    //alert(arrayX3[j]); //one single word, e.g "opera"
-					//!!! let currWord = arrayX3[j].replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,""); //removes any punctuations mark from string, as any presnet followed by word, Typo-JS gives incorrect check, i.e "opera." checked as wrong
-			        
-					let currWord         = arrayX3[j]; //i.e one word from textarea to check, if it contains punctuantion, it is also included e.g "awoke,"
-					let currWordPurified = arrayX3[j].replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,""); //i.e one word from textarea to check, but if it contains any punctuantion, we remove it //removes any punctuations mark from string, as any presnet followed by word, Typo-JS gives incorrect check, i.e "opera." checked as wrong
-				    
-					let is_spelled_correctly = dictionary.check(currWordPurified); //check the one current word by Typo-JS Library
-					
-					if(is_spelled_correctly){ //if spelling OK (by Typo-JS Library), can return boolean true or false
-					    //foundMisspelledWords = foundMisspelledWords + "  " + arrayX3[j];
-						all_text = all_text + "  " + arrayX3[j];
-                    
-                    //if spelling is wrong (by Typo-JS Library)				
-					} else {
-					
-					    //add misspelled word to array
-						this.arrayOfMisspelledWords.push(currWord);
-					    
-					    //get suggestions for misspelled word (by typo-js)
-					    let array_of_suggestions = dictionary.suggest(currWordPurified); //to get suggested corrections word variants for a misspelled word by Typo-JS Library. E.g if it "wodke", the suggestions will be ["woke", "awoke']
-						console.log(array_of_suggestions);
-						/*
-						let tooltipText = "";
-						for(let i =  0; i < array_of_suggestions.length; i++){
-						    tooltipText+= array_of_suggestions[i] + " \n ";
-						}*/
-						
-						//create checkbox/select/option with misspelled word suggestions.  E.g if it "wodke", the suggestions will be ["woke", "awoke']
-						let checkBox = "<select class='suggests'> <option value='" + currWordPurified + "' selected>" + currWordPurified + "</option>"; //onchange='onSelectOption(this.value)'   @change='onSelectOption($event)' 
-						for(let i =  0; i < array_of_suggestions.length; i++){
-						    checkBox+= "<option value='" + array_of_suggestions[i] + "'>" + array_of_suggestions[i] + "</option>";
-						}
-						checkBox+= "</select>";
-						
-  
-						
-						//end get suggestions for misspelled word (by typo-js)
-						
-					    foundMisspelledWords = foundMisspelledWords +  " <span style='color:red;'>" + arrayX3[j] + "</span> "; //to end the list of misspelled words
-						all_text+= " <span style='color:red;'>" + checkBox + "</span> ";           //contains whole textarea input with highlighted misspelled words and suggestions dropdown (by Typo-js)
-
-						//all_text+= " <span style='color:red;' title='" + tooltipText + "'>" + arrayX3[j] + "</span> ";           //contains whole textarea input with highlighted misspelled words (by Typo-js)
-						//all_text+= " <el-tooltip class='item' effect='dark' content='" + tooltipText + "' placement='top'><el-button> topfff </el-button></el-tooltip>";
-
-						spellErrorFound = true;
-						
-						$('#myModal').modal('show'); //open/show Modal window manually if errors exist
-					}
-					
-			        //console.log(is_spelled_correctly); //true/false
-					
-					
-				}
-			}
-			
-			 //CSS flag to change button text and hide loader
-			let that = this;
-			setTimeout(function(){ that.typoJSCheckFlag = false; }, 1100); //some delay for loader UI
-			
-			this.typoJSSpellCheck_cut  = foundMisspelledWords;
-			this.typoJSSpellCheck_full = all_text;
-			//this.userInput = foundMisspelledWords;
-			
-			if(spellErrorFound){
-				this.$swal('Spelling error found');
-				
-                this.typoJSSpellCheck_cut+= '</br> <button type="button" class="btn btn-info" data-toggle="modal" data-target="#myModal">Open to fix</button>'; //<!-- Trigger the modal with a button -->
-			} else {
-			    this.$swal('No spelling error found');
-			    this.typoJSSpellCheck_cut = "No spelling errors found";
-			}
-			
-			
-			//setTimeout(function(){ $(".loader-x").fadeOut(800); }, 1000);  //hide the loader with delay //reassigned to vue data typoJSCheckFlag
-			
+		
+            typoJs_spellCheck_external.run_typo_js_spellCheckLibrary_External(this, Typo, checkPathFile);   //calling external functions from './sub_functions/typo_js_spell_check.js', arg [ @param this, @param Typo(imported Typo-JS library), @param checkPathFile(impoterd external file) ]
 		     
 		},
 		
@@ -660,6 +535,32 @@ export default {
 		
 		
 		
+	
+		
+		
+		
+		
+		
+		/*
+        |-------------------------------------------------------------------------------------------------------------------
+        | When user clicks "Fix changes" in modal window with correct spell options dropdowns, we finds the index/position in the array of found misspelled word + finds selected dropdown text + fixes textarea text in loop
+		| Modal window either pops up on executing{function run_typo_js_spellCheckLibrary()} or on manual clicking the button "Open to fix" (for example user ran {function run_typo_js_spellCheckLibrary()} but closes the modal without fixing the errors)
+        |-------------------------------------------------------------------------------------------------------------------
+        |
+        |
+        */
+		fix_MisspelledWords_In_ModalWindow(){
+		    typoJs_spellCheck_external.fix_MisspelledWords_In_ModalWindow_External(this, sweet_alert_externalFile); //calling external functions from './sub_functions/typo_js_spell_check.js', arg[@param this, @param sweet_alert_externalFile is an external file to call SweetAlert2 Toast]
+		},
+		
+		
+		
+
+
+
+
+
+
 		
 		/*
         |----------------------------------------------------------------------------------------
@@ -668,43 +569,16 @@ export default {
         |---------------------------------------------------------------------------------------
         |
         */
-		checkFileExist(urlToFile) {
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', urlToFile, false);
-            xhr.send();
-     
-            if (xhr.status == "404") {
-                return false;
-            } else {
-                return true;
-            }
-        },
+		// checkFileExist(urlToFile) {}, //gone to /sub_functions/check_if_path_exist_function.js -> checkFileExist_External()
+		
 		
 		
 		// Does not work (on change <select><option>). NOT USED
-		/*
-		onSelectOption:function(e){
+		/* onSelectOption:function(e){
 		   alert(9);
-		},
-		*/
+		}, */
 		
 		
-		
-		
-		
-		
-		
-		/*
-        |-------------------------------------------------------------------------------------------------------------------
-        | When user clicks "Fix changes" in modal window with options dropdowns, we finds the index/position in the array of found misspelled word + finds selected dropdown text + fixes textarea text in loop
-		| Modal window either pops up on executing{function run_typo_js_spellCheckLibrary()} or on manual clicking the button "Open to fix" (for example user ran {function run_typo_js_spellCheckLibrary()} but closes the modal without fixing the errors)
-        |-------------------------------------------------------------------------------------------------------------------
-        |
-        |
-        */
-		fix_MisspelledWords_In_ModalWindow(){
-		    typoJs_spellCheck_external.fix_MisspelledWords_In_ModalWindow_External(this); //calling external functions from './sub_functions/typo_js_spell_check.js'
-		},
 		
     }		
 }

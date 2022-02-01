@@ -1,4 +1,4 @@
-//this file used in Blankspace.vue to be run as an external functions. 
+//this file is used in Blankspace.vue as an external functions. 
 //Include  functions:
 //proccessTextCore_External()    -> fixes all double blankspaces, blankspace + comma, blankspace + full stop, etc
 //countAllFoundErrors_External() -> count all errors found in text (double space etc). Used in function proccessTextCore
@@ -58,9 +58,7 @@ export const core_doubleSpace_remover_checker = {
 		that.textAfterCorrection = "";   //clear prev if any
 			
 		let  arrayX2 = that.userInput.split('\n');  
-		alert(arrayX2.length); console.log(arrayX2);
 		arrayX2 = arrayX2.filter(item => item); //remove empty array elem, i.e if this.userInput contains 2 "/n" lines, e.g when u add support footer
-		alert("aftre " + arrayX2.length);
 			
 		for(let j = 0; j < arrayX2.length; j++) {  
 

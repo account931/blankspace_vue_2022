@@ -1,5 +1,7 @@
 # Blankspace_remover_vue
 
+>NB: if you are trying to run build, i.e /dist folder and use button "Typo-JS Spell check", be sure to run it while OpenServer running as it uses XMLHttpRequest in checkFileExist_External(), otherwise won't work
+
 > 99% of the code is the same as Cleansed version (Cleansed version contains less comments + ReadMe.md reduced up to 40%)
 
 > Text editing tool on Vue Framework. Additionally uses Typo-JS Library for spell check (https://github.com/cfinke/Typo.js) + Element-UI Library (Impoted but Not used as a matter of fact).
